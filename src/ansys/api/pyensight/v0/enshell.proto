@@ -1,0 +1,63 @@
+// gRPC service definition for EnShell
+
+
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package enshell;
+
+// mimic EnShell commands by always returning EnShellReturnEnum and any other value(s)
+service EnShellService
+{
+    rpc exit_cleanly (google.protobuf.Empty) returns (google.protobuf.Empty) {}
+    rpc is_enshell_running (EnShellRoleName) returns (EnShellReturnString) {}
+    rpc is_everyone_ready (google.protobuf.Empty) returns (EnShellReturnString) {}
+    rpc run_command (EnShellCommandLine) returns (EnShellReturnString) {}
+    rpc show_net (google.protobuf.Empty) returns (EnShellReturnString) {}
+
+    // standard grpc.health.v1 health check 
+    // rpc Check(health.HealthCheckRequest) returns (health.HealthCheckResponse);
+    // rpc Watch(health.HealthCheckRequest) returns (stream health.HealthCheckResponse);
+
+}
+
+message EnShellRoleName
+{
+  string key = 1;
+}
+
+message EnShellCommandLine
+{
+  string command_line = 1;
+}
+
+enum EnShellReturnEnum {
+  ENSHELL_ERROR_OK = 0;               // match the codes for CvfErrorCode
+  ENSHELL_ERROR_MISC = 1;
+  ENSHELL_ERROR_ALLOC = 2;
+  ENSHELL_ERROR_LISTDONE = 3;
+  ENSHELL_ERROR_BADID = 4;
+  ENSHELL_ERROR_THREAD = 5;
+  ENSHELL_ERROR_BADARG = 6;
+  ENSHELL_ERROR_IO = 7;
+  ENSHELL_ERROR_SYSCALL = 8;
+  ENSHELL_ERROR_SIGNATURE = 9;
+  ENSHELL_ERROR_EXISTS = 10;
+  ENSHELL_ERROR_NOTFOUND = 11;
+  ENSHELL_ERROR_BADSIZE = 12;
+  ENSHELL_ERROR_UNIMPL = 13;
+  ENSHELL_ERROR_TIMEOUT = 14;
+}
+
+message EnShellReturnString
+{
+    EnShellReturnEnum ret = 1;
+    string response = 2;
+}
+
+message EnShellReturnBool
+{
+    EnShellReturnEnum ret = 1;
+    bool response = 2;
+}
