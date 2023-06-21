@@ -8,17 +8,19 @@ on:
       - "*"
     branches:
       - main
+env:
+  MAIN_PYTHON_VERSION: '3.10'
 
 jobs:
   build:
     name: Build package
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.7"
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
       - name: Install build requirements
         run: |
           pip install -U pip
@@ -34,7 +36,7 @@ jobs:
           python -c "from ansys.api.pyensight.v0 import ensight_pb2, ensight_pb2_grpc"
           python -c "from ansys.api.pyensight.v0 import enshell_pb2, enshell_pb2_grpc"
       - name: Upload packages
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ansys-api-pyensight-packages
           path: dist/
@@ -46,11 +48,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.10
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
 
       - name: Display structure of downloaded files
         run: ls -R
