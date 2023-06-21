@@ -32,7 +32,7 @@ jobs:
           mkdir tmp
           cd tmp
           python -c "from ansys.api.pyensight.v0 import ensight_pb2, ensight_pb2_grpc"
-          python -c "from ansys.api.pyensight.v0 import enshell_b2, enshell_pb2_grpc"
+          python -c "from ansys.api.pyensight.v0 import enshell_pb2, enshell_pb2_grpc"
       - name: Upload packages
         uses: actions/upload-artifact@v2
         with:
