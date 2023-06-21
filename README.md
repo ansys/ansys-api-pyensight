@@ -1,7 +1,8 @@
 ### ansys-api-pyensight gRPC Interface Package
 
 This Python package contains the auto-generated gRPC Python interface files for
-PyEnSight.
+PyEnSight. It also contains the xml stubs for the automated generation of the
+ensight module in PyEnSight.
 
 
 #### Installation
