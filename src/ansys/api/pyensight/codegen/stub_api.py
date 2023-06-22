@@ -778,7 +778,7 @@ def generate_stub_api() -> None:
 
     version = DEFAULT_ANSYS_VERSION
 
-    print(f"Generating API v{DEFAULT_ANSYS_VERSION} bindings for release {VERSION}")
+    print(f"Generating API v{DEFAULT_ANSYS_VERSION}")
 
     # cleanup old files
     for filename in glob.glob("*.xml"):
