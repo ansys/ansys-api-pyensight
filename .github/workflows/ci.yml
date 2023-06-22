@@ -21,20 +21,25 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
       - name: Install build requirements
         run: |
           pip install -U pip
           pip install build
+
       - name: Build
         run: python -m build
+
       - name: Install
         run: pip install dist/*.whl
+
       - name: Test import
         run: |
           mkdir tmp
           cd tmp
           python -c "from ansys.api.pyensight.v0 import ensight_pb2, ensight_pb2_grpc"
           python -c "from ansys.api.pyensight.v0 import enshell_pb2, enshell_pb2_grpc"
+
       - name: Upload packages
         uses: actions/upload-artifact@v3
         with:
@@ -57,16 +62,14 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -R
 
-      # uncomment the following section to permit upload to public PyPI
-
-      # - name: Upload to Public PyPi
-      #   run: |
-      #     pip install twine
-      #     twine upload --skip-existing ./**/*.whl
-      #     twine upload --skip-existing ./**/*.tar.gz
-      #   env:
-      #     TWINE_USERNAME: __token__
-      #     TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }} 
+      - name: Upload to Public PyPi
+        run: |
+          pip install twine
+          twine upload --skip-existing ./**/*.whl
+          twine upload --skip-existing ./**/*.tar.gz
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }} 
 
       - name: Release
         uses: softprops/action-gh-release@v1
