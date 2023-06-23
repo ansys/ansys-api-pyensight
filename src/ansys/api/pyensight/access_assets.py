@@ -9,7 +9,7 @@ def ensight_api_test_assests():
         The file contents as string.
     """
     root = os.path.dirname(os.path.dirname(__file__))
-    assets_file_name = os.path.join(root, "assets", "ensight_api_test_assets.txt")
+    assets_file_name = os.path.join(root,"src", "ansys", "api", "pyensight", "assets", "ensight_api_test_assets.txt")
     with open(assets_file_name, "r") as file:
         file_str = file.read()
     return file_str
