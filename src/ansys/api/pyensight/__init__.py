@@ -7,4 +7,4 @@ __all__ = ["__version__"]
 with open(pathlib.Path(__file__).parent / "VERSION", encoding="utf-8") as f:
     __version__ = f.read().strip()
 
-from .access_assets import ensight_api_test_assests
+from ansys.api.pyensight.access_assets import ensight_api_test_assests
