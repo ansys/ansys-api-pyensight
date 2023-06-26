@@ -68,6 +68,9 @@ CMDCLASS_OVERRIDE.update(
 )
 
 if __name__ == "__main__":
+    path = os.path.join(os.path.dirname(__file__), "codegen", "stub_api.py")
+    command = ['python', path]
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     setuptools.setup(
         name=package_name,
         version=version,
