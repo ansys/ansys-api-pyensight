@@ -6,7 +6,7 @@ from datetime import datetime
 import setuptools
 
 from ansys.tools.protoc_helper import CMDCLASS_OVERRIDE
-
+import subprocess
 # Get the long description from the README file
 HERE = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(HERE, "README.md"), encoding="utf-8") as f:
