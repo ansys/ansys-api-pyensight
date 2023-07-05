@@ -14,6 +14,7 @@ service EnShellService
     rpc is_enshell_running (EnShellRoleName) returns (EnShellReturnString) {}
     rpc is_everyone_ready (google.protobuf.Empty) returns (EnShellReturnString) {}
     rpc run_command (EnShellCommandLine) returns (EnShellReturnString) {}
+    rpc run_command_with_env (EnShellCommandWithEnvLine) returns (EnShellReturnString) {}
     rpc show_net (google.protobuf.Empty) returns (EnShellReturnString) {}
 
     // standard grpc.health.v1 health check 
@@ -30,6 +31,12 @@ message EnShellRoleName
 message EnShellCommandLine
 {
   string command_line = 1;
+}
+
+message EnShellCommandWithEnvLine
+{
+  string command_line = 1;
+  string env_line = 2;
 }
 
 enum EnShellReturnEnum {
