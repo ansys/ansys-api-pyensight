@@ -472,4 +472,86 @@ Return:
 </description>
 </override>
 
+
+<override namespace="ensight.sendmesgoptions">
+<signature>(record: int = 0, display: int = 0, exception: int = 0, noexec: int = 0) -> None</signature>
+<paramnames>["record=", "display=", "exception=", "noexec="]</paramnames>
+<description>
+Control the operation of EnSight native API and sendmesg() calls
+
+This method sets the default values for the exception, record, display and noexec keywords in
+the ensight.sendmesg() method and the EnSight native Python API.
+
+For example:
+
+.. code-block:: python
+
+    session.ensight.sendmesgoptions(record=1, display=1)
+    session.ensight.sendmesg("shell: echo A")
+
+
+results in the shell: command being both logged and printed. The commands:
+
+.. code-block:: python
+
+    ensight.sendmesgoptions(record=1, display=1)
+    ensight.sendmesg("shell: echo A", record=0)
+
+
+results in the shell: command being printed, but not recorded.
+
+
+Args:
+    record:
+        If set to 1, commands will be logged to the EnSight command journal.
+    display:
+        If set to 1, commands will echo the commands text to the EnSight console.
+    exception:
+        If set to 1, and a command results in an error, a Python runtime exception
+        will be raised.
+    noexec:
+        If set to 1, allow the record and display operations to run as selected, but
+        actual execution of the command is suppressed.
+
+</description>
+</override>
+
+
+<override namespace="ensight.sendmesg">
+<signature>(command: Union[str, tuple], record: int = 0, display: int = 0, exception: int = 0, noexec: int = 0) -> int</signature>
+<paramnames>["command", "record=", "display=", "exception=", "noexec="]</paramnames>
+<description>
+Executes one or more command language commands
+
+The method can be passed a single string or a tuple of strings.  In the latter case, all the
+strings in the tuple will be executed. For example:
+
+.. code-block:: python
+
+    ensight.sendmesg(("shell: echo A", "shell: echo B"))
+
+
+executes two command language commands. The sendmesg() function provides keywords to control
+the display and recording of the individual commands it executes. By default, commands are
+executed, but not recorded in the session command log. Explicitly setting any keywords
+will override the defaults set by the sendmesgoptions() method.
+
+Args:
+    record:
+        If set to 1, commands will be logged to the EnSight command journal.
+    display:
+        If set to 1, commands will echo the command text to the EnSight console.
+    exception:
+        If set to 1, and a command results in an error, a Python runtime exception
+        will be raised.
+    noexec:
+        If set to 1, allow the record and display operations to run as selected, but
+        actual execution of the command is suppressed.
+
+Returns:
+    0 if no error and a -1 if error.
+
+</description>
+</override>
+
 </docstrings>
