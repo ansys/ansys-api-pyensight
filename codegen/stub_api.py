@@ -14,6 +14,13 @@ import sys
 from typing import Any, List, Optional
 from xml.etree import ElementTree
 
+UTILS_MAP = {
+    'Views': 'views',
+    'Query': 'query',
+    'Export': 'export',
+    'Parts': 'parts',
+    'Support': 'support',
+}
 
 LIST_OF_IMPORTS = [
     "ENS_VAR",
@@ -227,7 +234,7 @@ class ProcessAPI:
         """
         var_type = node.get("type", "Any")
         if var_type.startswith("ENS_"):
-            var_type = f"Type[{var_type}]"
+            var_type = f"'{var_type}'"
         s = f"{indent}self.{node.get('name')}: {var_type}"
         if node.text:
             if var_type == "str":
@@ -694,6 +701,9 @@ class ProcessAPI:
         s += f'{indent}"""\n'
         s += f"{indent}def __init__(self, session: Session):\n"
         s += f"{indent}    self._session = session\n"
+        if node.get('name') == "ensight":
+            s += f"{indent}    self.utils = UtilsNameSpace()\n"
+
         attributes = ""
         # walk the children
         methods = ""
@@ -730,8 +740,8 @@ class ProcessAPI:
                     attributes += f"{indent}    {classname} ({classname}):\n"
                     attributes += f"{indent}        EnSight {classname} proxy class\n\n"
                     self._imports += self._process_class(child)
-                    classes += f"{indent}    self.{classname}: Type[{classname}] = {classname}\n"
-
+                    classes += f"{indent}    self.{classname}: '{classname}' = {classname}\n"
+        
         s += classes
         s += methods
         if attributes:
@@ -749,7 +759,20 @@ class ProcessAPI:
         s += "from ansys.pyensight.core.ensobj import ENSOBJ\n"
         s += "from ansys.pyensight.core import ensobjlist\n"
         s += "ENSIMPORTS"
-        s += "from typing import Any, List, Type, Union, Optional, Tuple\n"
+        s += "from typing import Any, List, Type, Union, Optional, Tuple, TYPE_CHECKING\n"
+        s += "import types\n"
+        s += "\n"
+        s += "if TYPE_CHECKING:\n"
+        for key, val in UTILS_MAP.items():
+            s+= f"    from ansys.pyensight.core.utils.{val} import {key}\n" 
+        s += "\n\n"
+        s += "class UtilsNameSpace(types.SimpleNamespace):\n"
+        s += "    def __init__(self, *args, **kwargs):\n"
+        s += "        super(*args, **kwargs)\n"
+        for key, val in UTILS_MAP.items():
+            s += f"        self.{val}: '{key}'\n"
+
+
         for child in self._root:
             if child.tag == "module":
                 s += self._process_module(child)
