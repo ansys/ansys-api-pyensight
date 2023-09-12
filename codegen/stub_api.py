@@ -20,6 +20,7 @@ UTILS_MAP = {
     'Export': 'export',
     'Parts': 'parts',
     'Support': 'support',
+    'Adr': 'adr'
 }
 
 LIST_OF_IMPORTS = [
@@ -41,6 +42,7 @@ LIST_OF_IMPORTS = [
     "ENS_FLIPBOOK",
     "ENS_SCENE",
     "ENS_LPART",
+    "ENS_STATE",
     "ens_emitterobj",
 ]
 
