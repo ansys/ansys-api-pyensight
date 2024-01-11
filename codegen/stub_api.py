@@ -3,7 +3,7 @@
 Usage
 -----
 
-`python generate_stub_api.py`
+`python stub_api.py`
 """
 import datetime
 import fnmatch
