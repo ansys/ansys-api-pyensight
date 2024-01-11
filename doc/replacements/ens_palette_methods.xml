@@ -1,8 +1,6 @@
 <docstrings>
 
 <override namespace="ensight.objs.ENS_PALETTE.set_range_to_over_time_minmax">
-<signature>[]</signature>
-<paramnames>[]</paramnames>
 <description>
 Set the palette range to the min/max over time
 Function requires 2 arguments given: start timestep (int), and end timestep (int) 
