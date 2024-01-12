@@ -1,0 +1,29 @@
+<docstrings>
+
+<override namespace="ensight.objs.ENS_PALETTE.set_range_to_over_time_minmax">
+<description>
+Set the palette range to the min/max over time
+Function requires 2 arguments given: start timestep (int), and end timestep (int) 
+over which to determine the palette min/max values.
+
+Args:
+    start timestep (int)  
+    end timestep (int)
+
+Example:
+    ::
+    # Determine min/max range using timesteps 0 through 159
+    ENS_PALETTE.set_range_to_over_time_minmax(0,159)
+
+Control the display and use of EnSight click and go handles for an object
+
+EnSight allows for direct interaction with many objects via click and go handles.
+The handles allow things like annotations and viewports to be moved or resized.
+They allow for the adjustment of values for clip planes and palette dynamic ranges.
+In some situations, allowing the user to directly adjust these values can be
+undesirable.  Setting this attribute to zero disables display of and interaction
+with click and go handles for the specific object instance.
+</description>
+</override>
+
+</docstrings>
