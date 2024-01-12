@@ -55,6 +55,8 @@ This tag defines an API target for customization.  An example might be:
 
 The tags within this one would apply to the generation of the bindings for
 the ensight.objs.ENS_VPORT.transform() method.
+All the tags contained in the override tags are optional. If not set, the
+data will be retrieved from the auto-generated stubs.
 
 ### \<signature>
 
