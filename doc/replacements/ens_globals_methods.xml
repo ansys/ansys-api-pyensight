@@ -325,6 +325,28 @@ Examples:
             group: int = 0, recurse: int = 0, depth: int = -1,
             types: Optional[list] = None) -> Union["ENS_GROUP", list]</signature>
 <paramnames>["list=", "filter=", "group=", "recurse=", "depth=", "types="]</paramnames>
+<code> arg_obj = f"{self._remote_obj()}"
+arg_list: List[str] = []
+arg_list.append(f"list={list.__repr__()}")
+if filter is not None:
+    arg_list.append(f"filter={filter.__repr__()}")
+arg_list.append(f"group={group.__repr__()}")
+arg_list.append(f"recurse={recurse.__repr__()}")
+arg_list.append(f"depth={depth.__repr__()}")
+if (types is not None) and group:
+    raise RuntimeError("PyEnSight does not support returning ENS_GROUP objects when the types keyword is specified.")
+arg_string = ",".join(arg_list)
+cmd = f"{arg_obj}.find_objs({arg_string})"
+ret = self._session.cmd(cmd)
+if types is not None:
+    temp = []
+    for obj in ret:
+        for target_class in types:
+            if issubclass(type(obj), target_class):
+                temp.append(obj)
+    ret = temp
+return ret
+</code>
 <description>
 Search an object (tree) for objects that match a specific criteria.
 
