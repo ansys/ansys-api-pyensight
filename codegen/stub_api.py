@@ -20,7 +20,8 @@ UTILS_MAP = {
     'Export': 'export',
     'Parts': 'parts',
     'Support': 'support',
-    'Adr': 'adr'
+    'Adr': 'adr',
+    'Variables': 'variables'
 }
 
 LIST_OF_IMPORTS = [
