@@ -21,7 +21,8 @@ UTILS_MAP = {
     'Parts': 'parts',
     'Support': 'support',
     'Adr': 'adr',
-    'Variables': 'variables'
+    'Variables': 'variables',
+    'Omniverse': 'omniverse'
 }
 
 LIST_OF_IMPORTS = [
