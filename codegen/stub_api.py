@@ -14,6 +14,8 @@ import sys
 from typing import Any, List, Optional
 from xml.etree import ElementTree
 
+from calculator_stubs import ProcessCalcuator
+
 UTILS_MAP = {
     'Views': 'views',
     'Query': 'query',
@@ -811,6 +813,12 @@ def generate_stub_api() -> None:
     generator = ProcessAPI(text, overrides=overrides)
     outname = os.path.join(target_dir, os.path.basename(api_name).replace(".xml", ".py"))
     generator.process(target_dir, outname)
+    api_name = os.path.join(target_dir, "v0", "calc_funcs.xml")
+    with open(api_name, "r", encoding="utf8") as fp:
+        text = fp.read()
+    calc = ProcessCalcuator(text)
+    outname = os.path.join(target_dir, os.path.basename(api_name).replace(".xml", ".py"))
+    calc.process(target_dir, outname)
 
 
 def generate() -> None:
