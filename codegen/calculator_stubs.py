@@ -89,7 +89,7 @@ class ProcessCalcuator:
                     done = True
                     part_counter += 1
                 if list(_type)[0] == "ENS_VAR":
-                    self._processed+= f"{name}: 'ENS_VAR', "
+                    self._processed+= f"{name}: Union['ENS_VAR', str], "
                     var_counter += 1
                     done = True
                 if list(_type)[0] == 'int':
@@ -127,7 +127,10 @@ class ProcessCalcuator:
                 else:
                     self._processed += f"{name}: Union["
                     for sub_type in _type:
-                        self._processed += f"'{sub_type}'" +", "
+                        if sub_type == "ENS_VAR":
+                            self._processed += "Union['ENS_VAR', str]" +", "
+                        else:
+                            self._processed += f"'{sub_type}'" +", "
                     done = True
                 self._processed = self._processed[:-2] + "], "
                 if position and done:
@@ -139,7 +142,7 @@ class ProcessCalcuator:
                     
     def _process_return_type(self, return_type):
         self._processed += f" -> '{list(self._arg_types[return_type])[0]}':"
-                
+                   
     def _register_functions(self, functions):
         for func in functions:
             name = func.get("name")
