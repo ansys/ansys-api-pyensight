@@ -16,6 +16,7 @@ class ProcessCalcuator:
         output+= '"""The ens_calculator module provides an interface to the EnSight calculator functions"""\n\n'
         output+= "from typing import TYPE_CHECKING, Union, List\n"
         output+= "from ansys.api.pyensight.ens_var import ENS_VAR\n"
+        output+= "from ansys.pyensight.core.utils.parts import convert_part\n"
         output+= "if TYPE_CHECKING:\n"
         output+= f"{INDENT}from ansys.pyensight.core.session import Session\n"
         output+= f"{INDENT}from ansys.api.pyensight.ens_part import ENS_PART\n\n"
@@ -78,7 +79,7 @@ class ProcessCalcuator:
                 name = "choose_" + name
             if len(_type) == 1:
                 if list(_type)[0] == "SOURCE_PARTS":
-                    self._processed+= "source_parts: List['ENS_PART'], "
+                    self._processed+= "source_parts: Union[List['ENS_PART'], List[int], List[str]], "
                     done = True
                 if list(_type)[0] == "ENS_PART":
                     if is_list:
@@ -166,21 +167,18 @@ class ProcessCalcuator:
                 self._processed += f'\n{2*INDENT}See :any:`{name}` for the details."""\n'
             self._processed += f'\n{2*INDENT}params = [y for x,y in locals().items() if x != "self" and x != "source_parts"]'
             self._processed += f'\n{2*INDENT}has_source_parts = any([x=="source_parts" for x,y in locals().items()])'
+            self._processed += f'\n{2*INDENT}sources = None'
             self._processed += f'\n{2*INDENT}if has_source_parts:'
             self._processed += f'\n{3*INDENT}params.insert(0, "plist")'
-            self._processed += f'\n{3*INDENT}self._session.ensight.utils.parts.select_parts(locals.get("source_parts"))'
-            self._processed += f"\n{2*INDENT}result = -1"
+            self._processed += f'\n{3*INDENT}part_numbers = [convert_part(self._session.ensight, p) for p in source_parts]'
+            self._processed += f'\n{3*INDENT}sources = self._session.ensight.objs.core.PARTS.find(part_numbers,attr="PARTNUMBER")'
             self._processed += f"\n{2*INDENT}for idx, param in enumerate(params):"
             self._processed += f"\n{3*INDENT}if isinstance(param, ENS_VAR):"
             self._processed += f"\n{4*INDENT}params[idx] = param.DESCRIPTION"
             self._processed += f'\n{2*INDENT}if len(params) > 0:'
             self._processed += f"""\n{3*INDENT}val = repr(params)[1:-1].replace("'", "")"""
-            self._processed += f"\n{3*INDENT}result = self._session.ensight.variables.evaluate(f'{name}={name}({{val}})')"
-            self._processed += f'\n{2*INDENT}else:'
-            self._processed += f"\n{3*INDENT}result = self._session.ensight.variables.evaluate(f'{name}={name}()')"
-            self._processed += f"\n{2*INDENT}if result < 0:"
-            self._processed += f"\n{3*INDENT}raise RuntimeError('Error computing variable')"
-            self._processed += f"\n{2*INDENT}return [v for v in self._session.ensight.objs.core.VARIABLES if v.DESCRIPTION == '{name}'][0]\n\n"
+            self._processed += f"\n{3*INDENT}return self._session.ensight.objs.core.create_variable('{name}', f'{name}({{val}})', sources=sources)"
+            self._processed += f"\n{2*INDENT}return self._session.ensight.variables.evaluate(f'{name}={name}()')\n\n"
             
             
             
