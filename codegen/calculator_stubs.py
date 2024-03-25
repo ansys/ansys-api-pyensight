@@ -144,6 +144,9 @@ class ProcessCalcuator:
             name = func.get("name")
             if not any([x.tag == "visible" for x in func]):
                 continue
+            visible = [x for x in func if x.tag == "visible"][0]
+            if visible.text:
+                continue
             args = {}
             result_type = None
             desc = None
@@ -159,7 +162,8 @@ class ProcessCalcuator:
             if result_type:
                 self._process_return_type(result_type)
             if desc:
-                self._processed += f'\n{2*INDENT}"""{desc}"""\n'
+                self._processed += f'\n{2*INDENT}"""{desc}\n'
+                self._processed += f'\n{2*INDENT}See :any:`{name}` for the details."""\n'
             self._processed += f'\n{2*INDENT}params = [y for x,y in locals().items() if x != "self" and x != "source_parts"]'
             self._processed += f'\n{2*INDENT}has_source_parts = any([x=="source_parts" for x,y in locals().items()])'
             self._processed += f'\n{2*INDENT}if has_source_parts:'
