@@ -14,7 +14,7 @@ class ProcessCalcuator:
     def process(self, dirname: str, filename: str):
         output = '"""ens_calculator module"""\n'
         output+= '"""The ens_calculator module provides an interface to the EnSight calculator functions"""\n\n'
-        output+= "from typing import TYPE_CHECKING, Union, List\n"
+        output+= "from typing import TYPE_CHECKING, Union, List, Optional\n"
         output+= "from ansys.api.pyensight.ens_var import ENS_VAR\n"
         output+= "from ansys.pyensight.core.utils.parts import convert_part\n"
         output+= "if TYPE_CHECKING:\n"
@@ -22,7 +22,8 @@ class ProcessCalcuator:
         output+= f"{INDENT}from ansys.api.pyensight.ens_part import ENS_PART\n\n"
         output+= "class ens_calculator:\n"
         output+= f"{INDENT}def __init__(self, session: 'Session'):\n"
-        output+= f"{2*INDENT}self._session = session\n\n"
+        output+= f"{2*INDENT}self._session = session\n"
+        output+= f"{2*INDENT}self._func_counter = {{}}\n\n"
         self._process_xml()
         output+= self._processed
         with open(filename, "w") as f:
@@ -137,8 +138,7 @@ class ProcessCalcuator:
                     self._processed = self._processed[:-2] + "=-1, " 
                 done = True
                 arg_counter += 1
-        self._processed = self._processed[:-2]
-        self._processed += ")"
+        self._processed += "output_varname: Optional[str] = None)"
                     
     def _process_return_type(self, return_type):
         self._processed += f" -> '{list(self._arg_types[return_type])[0]}':"
@@ -168,7 +168,7 @@ class ProcessCalcuator:
             if desc:
                 self._processed += f'\n{2*INDENT}"""{desc}\n'
                 self._processed += f'\n{2*INDENT}See :any:`{name}` for the details."""\n'
-            self._processed += f'\n{2*INDENT}params = [y for x,y in locals().items() if x != "self" and x != "source_parts"]'
+            self._processed += f'\n{2*INDENT}params = [y for x,y in locals().items() if x != "self" and x != "source_parts" and x != "output_varname"]'
             self._processed += f'\n{2*INDENT}has_source_parts = any([x=="source_parts" for x,y in locals().items()])'
             self._processed += f'\n{2*INDENT}sources = None'
             self._processed += f'\n{2*INDENT}if has_source_parts:'
@@ -178,10 +178,17 @@ class ProcessCalcuator:
             self._processed += f"\n{2*INDENT}for idx, param in enumerate(params):"
             self._processed += f"\n{3*INDENT}if isinstance(param, ENS_VAR):"
             self._processed += f"\n{4*INDENT}params[idx] = param.DESCRIPTION"
+            self._processed += f"\n{2*INDENT}if not output_varname:"
+            self._processed += f'\n{3*INDENT}if not self._func_counter.get("{name}"):'
+            self._processed += f'\n{4*INDENT}self._func_counter["{name}"] = 0'
+            self._processed += f'\n{3*INDENT}else:'
+            self._processed += f'\n{4*INDENT}self._func_counter["{name}"] += 1'
+            self._processed += f'\n{3*INDENT}counter = self._func_counter["{name}"]'
+            self._processed += f'\n{3*INDENT}output_varname = f"{name}_{{counter}}"'
             self._processed += f'\n{2*INDENT}if len(params) > 0:'
             self._processed += f"""\n{3*INDENT}val = repr(params)[1:-1].replace("'", "")"""
-            self._processed += f"\n{3*INDENT}return self._session.ensight.objs.core.create_variable('{name}', f'{name}({{val}})', sources=sources)"
-            self._processed += f"\n{2*INDENT}return self._session.ensight.variables.evaluate(f'{name}={name}()')\n\n"
+            self._processed += f"\n{3*INDENT}return self._session.ensight.objs.core.create_variable(f'{{output_varname}}', f'{name}({{val}})', sources=sources)"
+            self._processed += f"\n{2*INDENT}return self._session.ensight.variables.evaluate(f'{{output_varname}}={name}()')\n\n"
             
             
             
