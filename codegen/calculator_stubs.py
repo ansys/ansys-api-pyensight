@@ -9,7 +9,9 @@ class ProcessCalcuator:
     def __init__(self, data: str):
         self._root: ElementTree.Element = ElementTree.fromstring(data)
         self._processed = ""
+        self._docstring = ""
         self._arg_types = {}
+        self._prompts = {}
     
     def process(self, dirname: str, filename: str):
         output = '"""ens_calculator module"""\n'
@@ -28,8 +30,19 @@ class ProcessCalcuator:
         output+= self._processed
         with open(filename, "w") as f:
             f.write(output)
-        
-    def _register_prompts(self, types):
+
+    def _register_prompts(self, prompts):
+        for p in prompts:
+            name = p.get("name")
+            self._prompts[name] = p.text
+
+    def _prompt_text(self, name):
+        text = self._prompts.get(name, "Unknown")
+        text = text.replace("Select a", "A").replace("Enter a", "A").replace("enter a", "a")
+        text = text.replace("and select Next, ", "")
+        return text
+
+    def _register_types(self, types):
         for arg_type in types:
             name = arg_type.get("name")
             if "TURBO" in name:
@@ -61,10 +74,11 @@ class ProcessCalcuator:
                 if arg.tag == "val_int":
                     current.add("int")
     
-    def _process_args(self, args):
+    def _process_args(self, args, prompts):
         is_list = False
         position = False
-        for param_name, param_type in args.items():
+        for raw_param_name, param_type in args.items():
+            param_name = raw_param_name
             done = False
             if ("(s)" in param_name):
                 param_name = param_name.replace("(s)", "s")
@@ -75,12 +89,15 @@ class ProcessCalcuator:
             name = param_name.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace(".", "").replace("+", "_").replace("[", "").replace("]", "")
             if str(name[0]).isdigit():
                 name = "choose_" + name
+            doc_name = name
             if len(_type) == 1:
                 last = ""
                 if list(_type)[0] == "SOURCE_PARTS":
                     self._processed+= "source_parts: Union[List['ENS_PART'], List[int], List[str]], "
                     last = "Union"
                     done = True
+                    doc_name = "source_parts"
+                    self._docstring += f"\n{2*INDENT}Args:\n"
                 if list(_type)[0] == "ENS_PART":
                     if is_list:
                         self._processed+= f"{name}: List['ENS_PART'], "
@@ -142,8 +159,12 @@ class ProcessCalcuator:
                     index = self._processed.rfind("Union")
                     self._processed = self._processed[:index] + "Optional[" + self._processed[index:]
                 done = True
+            self._docstring += f"{3*INDENT}{doc_name}:\n"
+            self._docstring += f"{4*INDENT}{self._prompt_text(prompts[raw_param_name])}\n"
         self._processed += "output_varname: Optional[str] = None)"
-    
+        self._docstring += f"{3*INDENT}output_varname:\n"
+        self._docstring += f"{4*INDENT}The name of the newly created variable\n"
+
     def _find_var_args(self, args):
         var_args = []
         for param_name, param_type in args.items():
@@ -173,6 +194,7 @@ class ProcessCalcuator:
             if visible.text:
                 continue
             args = {}
+            prompts = {}
             result_type = None
             desc = None
             for attr in func:
@@ -180,16 +202,23 @@ class ProcessCalcuator:
                     desc = attr.text
                 if attr.tag == "param":
                     args[attr.get("name")] = [x.get("name") for x in attr if x.tag == "type"][0]
+                    prompts[attr.get("name")] = [x.get("name") for x in attr if x.tag == "prompt"][0]
                 if attr.tag == "result":
                     result_type = [x.get("name") for x in attr if x.tag == "type"][0]
             self._processed += f"{INDENT}def {name.lower()}(self, "
-            self._process_args(args)
+            self._docstring = f'\n{2*INDENT}"""'
+            if desc:
+                self._docstring += desc
+            self._docstring += "\n"
+            self._process_args(args, prompts)
             var_args = self._find_var_args(args)
             if result_type:
                 self._process_return_type(result_type)
-            if desc:
-                self._processed += f'\n{2*INDENT}"""{desc}\n'
-                self._processed += f'\n{2*INDENT}See :any:`{name}` for the details."""\n'
+            self._processed += self._docstring
+            self._processed += f"\n{2*INDENT}Returns:\n"
+            self._processed += f"{3*INDENT}New ENS_VAR instance or None\n"
+            self._processed += f"\n{2*INDENT}Note:\n"
+            self._processed += f'{3*INDENT}See :any:`{name}` for function details.\n{2*INDENT}"""'
             self._processed += f'\n{2*INDENT}params_dict = {{x:y for x,y in locals().items() if x != "self" and x != "output_varname"}}'
             self._processed += f'\n{2*INDENT}sources = None'
             self._processed += f'\n{2*INDENT}if params_dict.get("source_parts"):'
@@ -216,17 +245,13 @@ class ProcessCalcuator:
             self._processed += f"""\n{3*INDENT}val = repr(list(params_dict.values()))[1:-1].replace("'", "")"""
             self._processed += f"\n{3*INDENT}return self._session.ensight.objs.core.create_variable(f'{{output_varname}}', f'{name}({{val}})', sources=sources)"
             self._processed += f"\n{2*INDENT}return self._session.ensight.variables.evaluate(f'{{output_varname}}={name}()')\n\n"
-            
-            
-            
-                
-    
+
     def _process_xml(self):
         for node in self._root:
             if node.tag == "prompts":
-                continue
-            if node.tag == "types":
                 self._register_prompts(node)
+            if node.tag == "types":
+                self._register_types(node)
             if node.tag == "server":
                 self._register_functions(node)
         
