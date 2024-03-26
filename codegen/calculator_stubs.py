@@ -63,9 +63,6 @@ class ProcessCalcuator:
     
     def _process_args(self, args):
         is_list = False
-        arg_counter = 0
-        part_counter = 0
-        var_counter = 0
         position = False
         for param_name, param_type in args.items():
             done = False
@@ -79,36 +76,43 @@ class ProcessCalcuator:
             if str(name[0]).isdigit():
                 name = "choose_" + name
             if len(_type) == 1:
+                last = ""
                 if list(_type)[0] == "SOURCE_PARTS":
                     self._processed+= "source_parts: Union[List['ENS_PART'], List[int], List[str]], "
+                    last = "Union"
                     done = True
                 if list(_type)[0] == "ENS_PART":
                     if is_list:
                         self._processed+= f"{name}: List['ENS_PART'], "
+                        last = "List"
                     else:
                         self._processed+= f"{name}: 'ENS_PART', "
+                        last = "'ENS_PART'"
                     done = True
-                    part_counter += 1
                 if list(_type)[0] == "ENS_VAR":
-                    self._processed+= f"{name}: Union['ENS_VAR', str], "
-                    var_counter += 1
+                    self._processed+= f"{name}: Union['ENS_VAR', str, int], "
+                    last = "Union"
                     done = True
                 if list(_type)[0] == 'int':
                     self._processed+= f"{name}: int, "
-                    arg_counter +=1
+                    last = "int"
                     done = True
                 if list(_type)[0] == 'float':
                     self._processed+= f"{name}: float, "
-                    arg_counter +=1
+                    last = "float"
                     done = True
                 if list(_type)[0] == 'ENS_MAT':
+                    last = "ENS_MAT"
                     self._processed+= f"{name}: 'ENS_MAT', "
                     done = True
                 if list(_type)[0] == 'ENS_SPEC':
+                    last = "ENS_SPEC"
                     self._processed+= f"{name}: 'ENS_SPEC', "
                     done = True
                 if position and done:
-                    self._processed = self._processed[:-2] + "=-1, " 
+                    self._processed = self._processed[:-2] + "] = None, " 
+                    index = self._processed.rfind(last)
+                    self._processed = self._processed[:index] + "Optional[" + self._processed[index:]
                 if "enumvals" in list(_type)[0]:
                     position = True
                     def_value = list(_type)[0].replace("enumvals=", "")
@@ -119,7 +123,6 @@ class ProcessCalcuator:
                     except:
                         pass
                     self._processed += (f"{name}: {type_hint} = {def_value}, ")
-                    arg_counter += 1
             else:
                 has_source_parts = any(["SOURCE_PARTS" == sub_type for sub_type in _type])
                 if has_source_parts:
@@ -129,16 +132,34 @@ class ProcessCalcuator:
                     self._processed += f"{name}: Union["
                     for sub_type in _type:
                         if sub_type == "ENS_VAR":
-                            self._processed += "Union['ENS_VAR', str]" +", "
+                            self._processed += "'ENS_VAR', str, int" +", "
                         else:
                             self._processed += f"'{sub_type}'" +", "
                     done = True
                 self._processed = self._processed[:-2] + "], "
                 if position and done:
-                    self._processed = self._processed[:-2] + "=-1, " 
+                    self._processed = self._processed[:-2] + "] = None, "
+                    index = self._processed.rfind("Union")
+                    self._processed = self._processed[:index] + "Optional[" + self._processed[index:]
                 done = True
-                arg_counter += 1
         self._processed += "output_varname: Optional[str] = None)"
+    
+    def _find_var_args(self, args):
+        var_args = []
+        for param_name, param_type in args.items():
+            _type = self._arg_types.get(param_type)
+            if not _type:
+                continue
+            name = param_name.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace(".", "").replace("+", "_").replace("[", "").replace("]", "")
+            if str(name[0]).isdigit():
+                name = "choose_" + name
+            if len(_type) == 1:
+                if list(_type)[0] == "ENS_VAR":
+                    var_args.append(name)
+            else:
+                if any([subtype == "ENS_VAR" for subtype in _type]):
+                    var_args.append(name)
+        return var_args
                     
     def _process_return_type(self, return_type):
         self._processed += f" -> '{list(self._arg_types[return_type])[0]}':"
@@ -163,21 +184,27 @@ class ProcessCalcuator:
                     result_type = [x.get("name") for x in attr if x.tag == "type"][0]
             self._processed += f"{INDENT}def {name.lower()}(self, "
             self._process_args(args)
+            var_args = self._find_var_args(args)
             if result_type:
                 self._process_return_type(result_type)
             if desc:
                 self._processed += f'\n{2*INDENT}"""{desc}\n'
                 self._processed += f'\n{2*INDENT}See :any:`{name}` for the details."""\n'
-            self._processed += f'\n{2*INDENT}params = [y for x,y in locals().items() if x != "self" and x != "source_parts" and x != "output_varname"]'
-            self._processed += f'\n{2*INDENT}has_source_parts = any([x=="source_parts" for x,y in locals().items()])'
+            self._processed += f'\n{2*INDENT}params_dict = {{x:y for x,y in locals().items() if x != "self" and x != "output_varname"}}'
             self._processed += f'\n{2*INDENT}sources = None'
-            self._processed += f'\n{2*INDENT}if has_source_parts:'
-            self._processed += f'\n{3*INDENT}params.insert(0, "plist")'
+            self._processed += f'\n{2*INDENT}if params_dict.get("source_parts"):'
+            self._processed += f'\n{3*INDENT}params_dict["source_parts"] = "plist"'
             self._processed += f'\n{3*INDENT}part_numbers = [convert_part(self._session.ensight, p) for p in source_parts]'
             self._processed += f'\n{3*INDENT}sources = self._session.ensight.objs.core.PARTS.find(part_numbers,attr="PARTNUMBER")'
-            self._processed += f"\n{2*INDENT}for idx, param in enumerate(params):"
-            self._processed += f"\n{3*INDENT}if isinstance(param, ENS_VAR):"
-            self._processed += f"\n{4*INDENT}params[idx] = param.DESCRIPTION"
+            self._processed += f'\n{2*INDENT}for var_arg in {var_args}:'
+            self._processed += f'\n{3*INDENT}if isinstance(params_dict.get(var_arg), int):'
+            self._processed += f'\n{4*INDENT}if params_dict.get(var_arg) >= 0:'
+            self._processed += f'\n{5*INDENT}params_dict[var_arg] = self._session.ensight.objs.core.VARIABLES.find([params_dict.get(var_arg)], attr="ID")[0].DESCRIPTION'
+            self._processed += f"\n{2*INDENT}for param_name, param_val in params_dict.items():"
+            self._processed += f"\n{3*INDENT}if isinstance(param_val, ENS_VAR):"
+            self._processed += f"\n{4*INDENT}params_dict[param_name] = param_val.DESCRIPTION"
+            self._processed += f"\n{3*INDENT}if param_val is None:"
+            self._processed += f"\n{4*INDENT}params_dict[param_name] = -1"
             self._processed += f"\n{2*INDENT}if not output_varname:"
             self._processed += f'\n{3*INDENT}if not self._func_counter.get("{name}"):'
             self._processed += f'\n{4*INDENT}self._func_counter["{name}"] = 0'
@@ -185,8 +212,8 @@ class ProcessCalcuator:
             self._processed += f'\n{4*INDENT}self._func_counter["{name}"] += 1'
             self._processed += f'\n{3*INDENT}counter = self._func_counter["{name}"]'
             self._processed += f'\n{3*INDENT}output_varname = f"{name}_{{counter}}"'
-            self._processed += f'\n{2*INDENT}if len(params) > 0:'
-            self._processed += f"""\n{3*INDENT}val = repr(params)[1:-1].replace("'", "")"""
+            self._processed += f'\n{2*INDENT}if len(params_dict.values()) > 0:'
+            self._processed += f"""\n{3*INDENT}val = repr(list(params_dict.values()))[1:-1].replace("'", "")"""
             self._processed += f"\n{3*INDENT}return self._session.ensight.objs.core.create_variable(f'{{output_varname}}', f'{name}({{val}})', sources=sources)"
             self._processed += f"\n{2*INDENT}return self._session.ensight.variables.evaluate(f'{{output_varname}}={name}()')\n\n"
             
