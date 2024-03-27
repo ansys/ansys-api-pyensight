@@ -27,7 +27,7 @@ class ProcessCalcuator:
         output+= f"{INDENT}from ansys.api.pyensight import ensight_api\n\n"
         output+= f"{INDENT}from ansys.api.pyensight.ens_part import ENS_PART\n\n"
         output+= "class ens_calculator:\n"
-        output+= f'{INDENT}def __init__(self, ensight: Union["ensight_api.ensight", "ensight"])):\n'
+        output+= f'{INDENT}def __init__(self, ensight: Union["ensight_api.ensight", "ensight"]):\n'
         output+= f"{2*INDENT}self._ensight = ensight\n"
         output+= f"{2*INDENT}self._func_counter = {{}}\n\n"
         self._process_xml()
