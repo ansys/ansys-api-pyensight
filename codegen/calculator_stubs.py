@@ -16,15 +16,19 @@ class ProcessCalcuator:
     def process(self, dirname: str, filename: str):
         output = '"""ens_calculator module"""\n'
         output+= '"""The ens_calculator module provides an interface to the EnSight calculator functions"""\n\n'
+        output+= "try:\n"
+        output+= f"{INDENT}import ensight\n"
+        output+= "except ImportError:\n"
+        output+= f"{INDENT}pass\n"
         output+= "from typing import TYPE_CHECKING, Union, List, Optional\n"
         output+= "from ansys.api.pyensight.ens_var import ENS_VAR\n"
         output+= "from ansys.pyensight.core.utils.parts import convert_part\n"
         output+= "if TYPE_CHECKING:\n"
-        output+= f"{INDENT}from ansys.pyensight.core.session import Session\n"
+        output+= f"{INDENT}from ansys.api.pyensight import ensight_api\n\n"
         output+= f"{INDENT}from ansys.api.pyensight.ens_part import ENS_PART\n\n"
         output+= "class ens_calculator:\n"
-        output+= f"{INDENT}def __init__(self, session: 'Session'):\n"
-        output+= f"{2*INDENT}self._session = session\n"
+        output+= f'{INDENT}def __init__(self, ensight: Union["ensight_api.ensight", "ensight"])):\n'
+        output+= f"{2*INDENT}self._ensight = ensight\n"
         output+= f"{2*INDENT}self._func_counter = {{}}\n\n"
         self._process_xml()
         output+= self._processed
@@ -223,12 +227,12 @@ class ProcessCalcuator:
             self._processed += f'\n{2*INDENT}sources = None'
             self._processed += f'\n{2*INDENT}if params_dict.get("source_parts"):'
             self._processed += f'\n{3*INDENT}params_dict["source_parts"] = "plist"'
-            self._processed += f'\n{3*INDENT}part_numbers = [convert_part(self._session.ensight, p) for p in source_parts]'
-            self._processed += f'\n{3*INDENT}sources = self._session.ensight.objs.core.PARTS.find(part_numbers,attr="PARTNUMBER")'
+            self._processed += f'\n{3*INDENT}part_numbers = [convert_part(self._ensight, p) for p in source_parts]'
+            self._processed += f'\n{3*INDENT}sources = self._ensight.objs.core.PARTS.find(part_numbers,attr="PARTNUMBER")'
             self._processed += f'\n{2*INDENT}for var_arg in {var_args}:'
             self._processed += f'\n{3*INDENT}if isinstance(params_dict.get(var_arg), int):'
             self._processed += f'\n{4*INDENT}if params_dict.get(var_arg) >= 0:'
-            self._processed += f'\n{5*INDENT}params_dict[var_arg] = self._session.ensight.objs.core.VARIABLES.find([params_dict.get(var_arg)], attr="ID")[0].DESCRIPTION'
+            self._processed += f'\n{5*INDENT}params_dict[var_arg] = self._ensight.objs.core.VARIABLES.find([params_dict.get(var_arg)], attr="ID")[0].DESCRIPTION'
             self._processed += f"\n{2*INDENT}for param_name, param_val in params_dict.items():"
             self._processed += f"\n{3*INDENT}if isinstance(param_val, ENS_VAR):"
             self._processed += f"\n{4*INDENT}params_dict[param_name] = param_val.DESCRIPTION"
@@ -243,8 +247,8 @@ class ProcessCalcuator:
             self._processed += f'\n{3*INDENT}output_varname = f"{name}_{{counter}}"'
             self._processed += f'\n{2*INDENT}if len(params_dict.values()) > 0:'
             self._processed += f"""\n{3*INDENT}val = repr(list(params_dict.values()))[1:-1].replace("'", "")"""
-            self._processed += f"\n{3*INDENT}return self._session.ensight.objs.core.create_variable(f'{{output_varname}}', f'{name}({{val}})', sources=sources)"
-            self._processed += f"\n{2*INDENT}return self._session.ensight.variables.evaluate(f'{{output_varname}}={name}()')\n\n"
+            self._processed += f"\n{3*INDENT}return self._ensight.objs.core.create_variable(f'{{output_varname}}', f'{name}({{val}})', sources=sources)"
+            self._processed += f"\n{2*INDENT}return self._ensight.variables.evaluate(f'{{output_varname}}={name}()')\n\n"
 
     def _process_xml(self):
         for node in self._root:
