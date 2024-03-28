@@ -44,6 +44,7 @@ class ProcessCalcuator:
         text = self._prompts.get(name, "Unknown")
         text = text.replace("Select a", "A").replace("Enter a", "A").replace("enter a", "a")
         text = text.replace("and select Next, ", "")
+        text = text.replace("A Grad(|Velocity|) vector", "The gradient of the input velocity vector magnitude")
         return text
 
     def _register_types(self, types):
