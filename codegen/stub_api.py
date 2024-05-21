@@ -24,7 +24,8 @@ UTILS_MAP = {
     'Support': 'support',
     'Adr': 'adr',
     'Variables': 'variables',
-    'Omniverse': 'omniverse'
+    'Omniverse': 'omniverse',
+    'Readers': "readers"
 }
 
 LIST_OF_IMPORTS = [
