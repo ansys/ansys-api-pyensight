@@ -98,7 +98,7 @@ class ProcessCalcuator:
             if len(_type) == 1:
                 last = ""
                 if list(_type)[0] == "SOURCE_PARTS":
-                    self._processed+= "source_parts: Union[List['ENS_PART'], List[int], List[str]], "
+                    self._processed+= "source_parts: Union[List['ENS_PART'], List[int], List[str], 'ENS_PART', int, str], "
                     last = "Union"
                     done = True
                     doc_name = "source_parts"
