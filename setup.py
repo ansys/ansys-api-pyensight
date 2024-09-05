@@ -86,7 +86,7 @@ if __name__ == "__main__":
         license="MIT",
         python_requires=">=3.9",
         install_requires=["grpcio>=1.17", "protobuf>=3.19"],
-        package_dir = {"": "src"},
+        package_dir={"": "src"},
         packages=setuptools.find_namespace_packages("src", include=("ansys.*",)),
         package_data={
             "": ["*.proto", "*.pyi", "py.typed", "VERSION", "*.xml", "*ensight_api_test_assets.txt"],

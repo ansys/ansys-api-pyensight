@@ -1,0 +1,686 @@
+// *****************************************
+// Copyright 2024 ANSYS, Inc.
+// All Rights Reserved.
+//
+//        Restricted Rights Legend
+//
+// Use, duplication, or disclosure of this
+// software and its documentation by the
+// Government is subject to restrictions as
+// set forth in subdivision [(b)(3)(ii)] of
+// the Rights in Technical Data and Computer
+// Software clause at 52.227-7013.
+// *****************************************
+
+syntax = "proto3";
+
+package libuserdservice;
+
+service LibUSERDService {
+
+   // For a given elemene type, return the number of nodes in each element 
+   rpc Libuserd_nodes_per_element(Libuserd_nodes_per_elementRequest) returns(Libuserd_nodes_per_elementReply) {}
+
+   // Identify if the given element type is ghost e.g. Valid Ghost Element is QUA04_GHOST
+   rpc Libuserd_element_is_ghost(Libuserd_element_is_ghostRequest) returns(Libuserd_element_is_ghostReply) {}
+
+   // Identify if the given element type is a standard element type e.h. HEX08
+   rpc Libuserd_element_is_zoo(Libuserd_element_is_zooRequest) returns(Libuserd_element_is_zooReply) {}
+
+   // Identify if the given element type in NSIDED e.g. Polygon
+   rpc Libuserd_element_is_nsided(Libuserd_element_is_nsidedRequest) returns(Libuserd_element_is_nsidedReply) {}
+
+   // Identify if the given element type is NFACED e.g. Polyhedron 
+   rpc Libuserd_element_is_nfaced(Libuserd_element_is_nfacedRequest) returns(Libuserd_element_is_nfacedReply) {}
+
+   // Find number of supported standard element types
+   rpc Libuserd_number_of_simple_element_types(Libuserd_number_of_simple_element_typesRequest) returns(Libuserd_number_of_simple_element_typesReply) {}
+
+   // LibUSERD API version
+   rpc Libuserd_library_version(Libuserd_library_versionRequest) returns(Libuserd_library_versionReply) {}
+
+   // ANSYS Release string
+   rpc Libuserd_ansys_release_string(Libuserd_ansys_release_stringRequest) returns(Libuserd_ansys_release_stringReply) {}
+   
+   // ANSYS Relase ID
+   rpc Libuserd_ansys_release_number(Libuserd_ansys_release_numberRequest) returns(Libuserd_ansys_release_numberReply) {}
+
+   // For a given element type, return its name
+   rpc Libuserd_element_type_to_string(Libuserd_element_type_to_stringRequest) returns(Libuserd_element_type_to_stringReply) {}
+   
+   // Initialize before calling it. User can opt to set a path to reader shared ibraries 
+   rpc Libuserd_set_reader_path(Libuserd_set_reader_pathRequest) returns(Libuserd_set_reader_pathReply) {}
+
+   // Initialize LibUSERD
+   rpc Libuserd_initialize(Libuserd_initializeRequest) returns(Libuserd_initializeReply) {}
+
+   // Get count of available readers 
+   rpc Libuserd_get_available_reader_count(Libuserd_get_available_reader_countRequest) returns(Libuserd_get_available_reader_countReply) {}
+
+   // Get all available readers 
+   rpc Libuserd_get_all_readers(Libuserd_get_all_readersRequest) returns(Libuserd_get_all_readersReply) {}
+
+   // Based in input file extension provide a list of supported readers
+   rpc Libuserd_query_format(Libuserd_query_formatRequest) returns(Libuserd_query_formatReply) {}
+
+   // Shutdown
+   rpc Libuserd_shutdown(Libuserd_shutdownRequest) returns(Libuserd_shutdownReply) {}
+
+   // ReaderInfo
+   // ==========
+   // Read dataset
+   rpc ReaderInfo_read_dataset(ReaderInfo_read_datasetRequest) returns (ReaderInfo_read_datasetReply) {}
+
+   // Reader
+   // ======
+   // Get a list of available parts
+   rpc Reader_parts(Reader_partsRequest) returns(Reader_partsReply) {}
+
+   // Get a list of available variables
+   rpc Reader_variables(Reader_variablesRequest) returns(Reader_variablesReply) {}
+ 
+   // Get a list of available queries 
+   rpc Reader_queries(Reader_queriesRequest) returns(Reader_queriesReply) {}
+
+   // Get number of timesets 
+   rpc Reader_get_number_of_time_sets(Reader_get_number_of_time_setsRequest) returns(Reader_get_number_of_time_setsReply) {}
+
+   // Get timevalues
+   rpc Reader_timevalues(Reader_timevaluesRequest) returns(Reader_timevaluesReply) {}
+
+   // Set a time value to read specific time-step data
+   rpc Reader_set_timevalue(Reader_set_timevalueRequest) returns(Reader_set_timevalueReply) {}
+
+   // Set a timestep value to read specific time-step data
+   rpc Reader_set_timestep(Reader_set_timestepRequest) returns(Reader_set_timestepReply) {}
+
+   // For a given dataset get the dataset constant value
+   rpc Reader_variable_value(Reader_variable_valueRequest) returns(Reader_variable_valueReply) {}
+
+   // Is geometry changing? Static, changing conn, changing coords?
+   rpc Reader_is_geometry_changing(Reader_is_geometry_changingRequest) returns(Reader_is_geometry_changingReply) {}  
+
+   // Parts
+   // =====
+   // Get number of nodes in a part
+   rpc Part_num_nodes(Part_num_nodesRequest) returns(Part_num_nodesReply) {}
+
+   // Get Part node coordinates 
+   rpc Part_nodes(Part_nodesRequest) returns(stream Part_nodesReply) {}
+
+   // Get number of elements in a part of each element type
+   rpc Part_num_elements(Part_num_elementsRequest) returns(Part_num_elementsReply) {}
+
+   // Get the part element connectivity by element type
+   rpc Part_element_conn(Part_element_connRequest) returns(stream Part_element_connReply) {}
+
+   // If nsided elements are present, for a part return
+   //  (1)Number of polygon(nsided) elements
+   //  (2)Total Number of nodes in available polygon elements
+   rpc Part_element_conn_nsided_size(Part_element_conn_nsided_sizeRequest) returns(Part_element_conn_nsided_sizeReply) {}
+
+   // If nsided elements are present, for a part return
+   // (1) List of number of nodes in each polygon
+   // (2) Return node indices for all polygons
+   rpc Part_element_conn_nsided(Part_element_conn_nsidedRequest) returns(stream Part_element_conn_nsidedReply) {}  
+
+   // If nfaced elements are present, for a part return nfaced element count, numfaces and node count
+   rpc Part_element_conn_nfaced_size(Part_element_conn_nfaced_sizeRequest) returns(Part_element_conn_nfaced_sizeReply) {}
+   
+   // If nfaced elements are present, for a part return a connectivity 
+   rpc Part_element_conn_nfaced(Part_element_conn_nfacedRequest) returns(stream Part_element_conn_nfacedReply) {}
+
+   // For a part, return variable values 
+   rpc Part_variable_values(Part_variable_valuesRequest) returns(stream Part_variable_valuesReply) {}
+
+   // For a part, return any rigid body transform for the current timestep
+   rpc Part_rigid_body_transform(Part_rigid_body_transformRequest) returns(Part_rigid_body_transformReply) {}
+
+   // Variable
+   // ========
+   // For a given variable id, return its name
+   rpc Variable_get_variable_type_string(Variable_get_variable_type_stringRequest) returns(Variable_get_variable_type_stringReply) {}
+   
+   // For a given variable id and location, return a location string 
+   rpc Variable_get_variable_location_string(Variable_get_variable_location_stringRequest) returns(Variable_get_variable_location_stringReply) {}
+
+   // Query
+   // =====
+   // Return number of points for a given query
+   rpc Query_num_points(Query_num_pointsRequest) returns(Query_num_pointsReply) {}
+
+   // Return x, values for a query
+   rpc Query_data(Query_dataRequest) returns(Query_dataReply) {}
+}
+
+enum ElementType 
+{
+    POINT = 0;
+    POINT_GHOST = 1;
+    BAR02 = 2;
+    BAR02_GHOST = 3;
+    BAR03 = 4;
+    BAR03_GHOST = 5;
+    TRI03 = 6;
+    TRI03_GHOST = 7;
+    TRI06 = 8;
+    TRI06_GHOST = 9;
+    QUAD04 = 10;
+    QUAD04_GHOST = 11;
+    QUAD08 = 12;
+    QUAD08_GHOST = 13;
+    TET04 = 14;
+    TET04_GHOST = 15;
+    TET10 = 16;
+    TET10_GHOST =17;
+    PYR05 = 18;
+    PYR05_GHOST =19;
+    PYR13 = 20;
+    PYR13_GHOST = 21;
+    PENT6 = 22;
+    PENT6_GHOST =23;
+    PENT15 = 24;
+    PENT15_GHOST = 25;
+    HEX08 = 26;
+    HEX08_GHOST = 27;
+    HEX20 = 28;
+    HEX20_GHOST = 29;
+    NSIDED = 30;
+    NSIDED_GHOST = 31;
+    NFACED = 32;
+    NFACED_GHOST = 33;
+    MAX_ELEMENT_TYPE = 34;
+}
+
+enum VariableLocation
+{
+    DATASET = 0;
+    PART = 1;
+    NODE = 2;
+    ELEMENT = 3;
+    UNKNOWN_LOCATION = 4;
+}
+
+enum VariableType
+{
+    CONSTANT = 0;
+    SCALAR = 1;
+    VECTOR = 2;
+    TENSOR = 3;
+    TENSOR9 = 4;
+    UNKNOW_VAR_TYPE = 5;
+}
+
+enum ErrorCodes
+{
+    SUCCESS = 0;
+    UNAVAILABLE = 1;
+    IGNORED_AFTER_INITIALIZE = 2;
+    OUT_OF_MEMORY = 3;
+    IO = 4;
+    UNIMPLEMENTED = 5;
+    NOT_FOUND = 6;
+    UNKNOWN = 7;
+}
+
+enum PartHints
+{
+    UNDEFINED = 0;
+    STATIC_COORDS   = 1; // 1 << 0
+    CHANGING_COORDS = 2; // 1 << 1
+    CHANGING_CONNECTIVITY = 4; // 1 << 2
+}
+
+message OptBooleanInfo {
+    string name = 1;
+    int32 value = 2;
+    int32 default_value = 3;
+}
+
+message OptOptionInfo {
+    string name = 1;
+    repeated string values = 2;
+    uint32 value_index = 3;
+    uint32 default_value_index = 4;
+}
+
+message OptFieldInfo {
+    string name  = 1;
+    string value = 2;
+    string default_value = 3;
+}
+
+message OptionInfo {
+    repeated OptBooleanInfo booleans = 1;
+    repeated OptOptionInfo options   = 2;
+    repeated OptFieldInfo fields     = 3;
+}
+
+message ReaderInfo {
+    uint32 id = 1;
+    string name = 2;
+    string description = 3;
+    string fileLabel1 = 4; 
+    string fileLabel2 = 5;
+    OptionInfo options = 6; 
+}
+
+message Reader {
+    string unitSystem = 1;
+    map<string,string>  metadata = 2;
+    string raw_metadata = 3;
+
+    uint32 currentTimeStep = 4;
+    uint32 currentTimeSet  = 5;
+}
+
+message RigidBodyTransform {
+    repeated float translation = 1;
+    repeated float euler_value = 2;
+    repeated float center_of_gravity = 3;
+    float rotation_order = 4;
+    repeated float rotation_angles = 5;
+}
+
+message PartInfo {
+    uint32 index = 1;
+    uint32 id    = 2;
+    uint32 reader_id = 3;
+    string name = 4;
+    map<string,string>  metadata = 5;
+    PartHints hints = 6;
+    float reader_api_version = 7;
+}
+
+message VariableInfo {
+    uint32 id = 1;
+    string name = 2;
+    string unitLabel = 3;
+    string unitDims = 4;
+    VariableLocation varLocation = 5;
+    VariableType type = 6;
+    bool timeVarying = 7;
+    bool isComplex = 8;
+    bool interleaveFlag = 9;
+    uint32 numOfComponents = 10;
+    map<string,string>  metadata = 11;
+}
+
+message QueryInfo {
+    uint32 id = 1;
+    string name = 2;
+    string xTitle = 3;
+    string yTitle = 4;
+    map<string,string>  metadata = 5;
+}
+
+message NoRequest {
+}
+
+message IntReply {
+    uint32 result = 1;
+}
+
+message FloatReply {
+    float result = 1;
+}
+
+message StringReply {
+    string result = 1;
+}
+
+message BoolReply {
+    bool result = 1;
+}
+
+message ErrorCodeReply {
+    ErrorCodes errorCode = 1;
+}
+
+// Request, Reply
+message ElementTypeRequest {
+    ElementType elemType = 1;
+}
+
+message Libuserd_nodes_per_elementRequest {
+    ElementType elemType = 1;
+}
+
+message Libuserd_nodes_per_elementReply {
+    uint32 result = 1;
+}
+
+message Libuserd_element_is_ghostRequest {
+    ElementType elemType = 1;
+}
+
+message Libuserd_element_is_ghostReply {
+    bool result = 1;
+}
+
+message Libuserd_element_is_zooRequest {
+    ElementType elemType = 1;
+}
+
+message Libuserd_element_is_zooReply {
+    bool result = 1;
+}
+
+message Libuserd_element_is_nsidedRequest {
+    ElementType elemType = 1;
+}
+
+message Libuserd_element_is_nsidedReply {
+    bool result = 1;
+}
+
+message Libuserd_element_is_nfacedRequest {
+    ElementType elemType = 1;
+}
+
+message Libuserd_element_is_nfacedReply {
+    bool result = 1;
+}
+
+message Libuserd_number_of_simple_element_typesRequest {
+}
+
+message Libuserd_number_of_simple_element_typesReply {
+    uint32 result = 1;
+}
+
+message Libuserd_library_versionRequest {
+}
+
+message Libuserd_library_versionReply {
+    string result = 1;
+}
+
+message Libuserd_ansys_release_stringRequest {
+}
+
+message Libuserd_ansys_release_stringReply {
+    string result = 1;
+}
+
+message Libuserd_ansys_release_numberRequest{
+}
+
+message Libuserd_ansys_release_numberReply{
+    uint32 result = 1;
+}
+
+message Libuserd_element_type_to_stringRequest {
+    ElementType elemType = 1;
+}
+
+message Libuserd_element_type_to_stringReply {
+    string result = 1;
+}
+
+message Libuserd_set_reader_pathRequest {
+    string readerPath = 1;
+}
+
+message Libuserd_set_reader_pathReply {
+}
+
+message Libuserd_initializeRequest {
+}
+
+message Libuserd_initializeReply {
+}
+
+message Libuserd_get_available_reader_countRequest {
+}
+
+message Libuserd_get_available_reader_countReply {
+    uint32 result = 1;
+}
+
+message Libuserd_get_all_readersRequest {
+}
+
+message Libuserd_get_all_readersReply {
+    repeated ReaderInfo readerInfo = 1;
+}
+
+message Libuserd_query_formatRequest {
+    string name1 = 1;
+    string name2 = 2;
+}
+
+message Libuserd_query_formatReply {
+    repeated ReaderInfo readerInfo = 1;
+}
+
+message Libuserd_shutdownRequest {
+}
+
+message Libuserd_shutdownReply {
+}
+
+message ReaderInfo_read_datasetRequest {
+    uint32 reader_id  = 1;
+    string filename_1 = 2;
+    string filename_2 = 3;
+    bool useParallel  = 4;
+    repeated bool option_values_bools = 5;
+    repeated uint32 option_values_options = 6;
+    repeated string option_values_fields = 7;
+}
+
+message ReaderInfo_read_datasetReply {
+    Reader reader = 1;
+}
+
+message Reader_partsRequest {
+}
+
+message Reader_partsReply {
+    repeated PartInfo partList = 1;
+}
+
+message Reader_variablesRequest {
+}
+
+message Reader_variablesReply {
+    repeated VariableInfo variableList = 1;
+}
+
+message Reader_queriesRequest {
+}
+
+message Reader_queriesReply {
+    repeated QueryInfo queryList = 1;
+}
+
+message Reader_get_number_of_time_setsRequest {
+}
+
+message Reader_get_number_of_time_setsReply {
+    uint32 numberOfTimeSets = 1;
+}
+
+message Reader_timevaluesRequest {
+    uint32 timeSetNumber = 1;
+}
+
+message Reader_timevaluesReply {
+    repeated float timeValues = 1;
+}
+
+message Reader_set_timevalueRequest {
+    float timeValue  = 1;
+    uint32 timesetNumber = 2;
+}
+
+message Reader_set_timevalueReply {
+}
+
+message Reader_set_timestepRequest {
+    uint32 timeStep = 1;
+    uint32 timeSetNumber = 2;
+}
+
+message Reader_set_timestepReply {
+}
+
+message Reader_variable_valueRequest {
+    uint32 variable_id = 1;
+}
+
+message Reader_variable_valueReply {
+    float value = 1;
+}
+
+message Reader_is_geometry_changingRequest {
+}
+
+message Reader_is_geometry_changingReply {
+    bool isGeomChanging = 1;
+}
+
+message Part_num_nodesRequest {
+    uint32 part_id  = 1;
+}
+
+message Part_num_nodesReply {
+    uint32 numNodes = 1;
+}
+
+message Part_nodesRequest {
+    uint32 part_id  = 1;
+}
+
+message Part_nodesReply {
+    uint32 offset = 1;
+    uint32 total_size = 2;
+    repeated float xyz = 3;
+}
+
+message Part_num_elementsRequest {
+    uint32 part_id  = 1;
+}
+
+message Part_num_elementsReply {
+    map<uint32, uint32> elementCount = 1;
+}
+
+message Part_element_connRequest {
+    uint32 part_id  = 1;
+    ElementType elemType = 2;
+}
+
+message Part_element_connReply {
+    uint32 offset = 1;
+    uint32 total_size = 2;
+    repeated uint32 connectivity = 3;
+}
+
+message Part_element_conn_nsided_sizeRequest {
+    uint32 part_id  = 1;
+    ElementType elemType = 2;
+}
+
+message Part_element_conn_nsided_sizeReply {
+    uint32 nodesPerPolygonSize = 1;
+    uint32 nodesSize = 2;
+}
+
+message Part_element_conn_nsidedRequest {
+    uint32 part_id  = 1;
+    ElementType elemType = 2;
+}
+
+message Part_element_conn_nsidedReply {
+    uint32 nodes_offset = 1;
+    uint32 nodes_total_size = 2;
+    repeated uint32 nodesPerPolygon = 3;
+    uint32 indices_offset = 4;
+    uint32 indices_total_size = 5;
+    repeated uint32 nodeIndices = 6;
+}
+
+message Part_element_conn_nfaced_sizeRequest {
+    uint32 part_id  = 1;
+    ElementType elemType = 2;
+}
+
+message Part_element_conn_nfaced_sizeReply {
+    uint32 facesPerElementSize = 1;
+    uint32 nodesPerFaceSize = 2;
+    uint32 nodeIndicesSize = 3; 
+}
+
+message Part_element_conn_nfacedRequest {
+    uint32 part_id  = 1;
+    ElementType elemType = 2;
+}
+
+message Part_element_conn_nfacedReply {
+    uint32 face_offset = 1;
+    uint32 face_total_size = 2;
+    repeated uint32 facesPerElement = 3;
+    uint32 npf_offset = 4;
+    uint32 npf_total_size = 5;
+    repeated uint32 nodesPerFace = 6;
+    uint32 nodes_offset = 7;
+    uint32 nodes_total_size = 8;
+    repeated uint32 nodeIndices = 9;
+}
+
+message Part_variable_valuesRequest {
+    uint32 part_id = 1;
+    uint32 var_id = 2;
+    ElementType elemType = 3;
+    uint32 varComponent = 4;
+    bool complex = 5;
+}
+
+message Part_variable_valuesReply {
+    uint32 offset = 1;
+    uint32 total_size = 2;
+    repeated float varValues = 3;
+}
+
+message Part_rigid_body_transformRequest {
+    uint32 part_id = 1;
+}
+
+message Part_rigid_body_transformReply {
+    RigidBodyTransform transform  = 1;
+}
+
+message Variable_get_variable_type_stringRequest {
+    VariableType variableType = 1;
+}
+
+message Variable_get_variable_type_stringReply {
+    string variableType = 1;
+}
+
+message Variable_get_variable_location_stringRequest {
+    VariableLocation varLocation = 1;
+}
+
+message Variable_get_variable_location_stringReply {
+    string varLocation = 1;
+}
+
+message Query_num_pointsRequest {
+    uint32 query_id = 1;
+}
+
+message Query_num_pointsReply {
+    uint32 numPoints = 1;
+}
+
+message Query_dataRequest {
+    uint32 query_id = 1;
+}
+
+message Query_dataReply {
+    repeated float x = 1;
+    repeated float y = 2;
+}
