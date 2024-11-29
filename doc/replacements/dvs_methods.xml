@@ -1,0 +1,483 @@
+<docstrings>
+<override namespace="dynamic_visualization_store.add_metadata">
+<signature>(session_id: int, metadata: Dict[str]) -> None</signature>
+<paramnames>['session_id', 'metadata']</paramnames>
+<description>
+Add metadata for the current dataset.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect()
+metadata: dict 
+    A dictionary containing the metadata keys and values to be added
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.begin_init">
+<signature>(session_id: int, dataset_name: str, rank: int, total_ranks: int, num_chunks: int) -> None</signature>
+<paramnames>['session_id', 'dataset_name', 'rank', 'total_ranks', 'num_chunks']</paramnames>
+<description>
+Begin setup of rank.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect()
+dataset_name: str
+    name for dataset
+rank: int 
+    Rank this solver is processing (zero based)
+total_ranks: int
+    Total number of ranks across solver nodes
+num_chunks: int
+    Number of chunks for this rank (usually 1)
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.add_part_info">
+<signature>(session_id: int, parts: List[dict]) -> None</signature>
+<paramnames>['session_id', 'parts']</paramnames>
+<description>
+Add part info for simulation.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect()
+parts: list
+    A list of parts definition. Each part is defined via a dictionary defined like this:
+      id - The part id
+      name - The part name
+      structured: True if the part is structured
+      chunking: True if using chunking
+      tags: a dictionary containing the metadata for the part
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.add_part_rigid_body_motion">
+<signature>(session_id: int, part_id: int, update_num: int, quaternion: Optional[List[float]]=None, displacement: Optional[List[float]]=None, cg_offset: Optional[List[float]]=None) -> None</signature>
+<paramnames>['session_id', 'part_id', 'update_num', 'quaternion=', 'displacement=', 'cg_offset=']</paramnames>
+<description>
+Add rigid body motion data to a specific part for a specific update.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect()
+update_num: int
+    update number of this update, must be monotonically increasing
+quaternion: List[float]
+    the quaternion defining the rigid body rotation.   
+displacement: List[float]
+    a list describing the rigid body translation
+cg_offset: List[float]
+    a list describing the center of gravity offset to be applied before applying the rotation and the translation
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.add_plot_info">
+<signature>(session_id: int, plots: List[dict]) -> None</signature>
+<paramnames>['session_id', 'plots']</paramnames>
+<description>
+Add plot info for simulation.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect()
+plots: list
+    A list of plots definition. Each plot is defined via a dictionary defined like this:
+      id - The plot id
+      name - The plot name
+      x_axis_title - The X Axis title
+      x_axis_units - The X Axis units
+      y_axis_title - The Y Axis title
+      y_axis_units - The Y Axis units
+      tags: a dictionary containing the metadata for the plot
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.add_var_info">
+<signature>(session_id: int, variables: List[dict]) -> None</signature>
+<paramnames>['session_id', 'variables']</paramnames>
+<description>
+Add var info for simulation.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect()
+plots: list
+    A list of plots definition. Each plot is defined via a dictionary defined like this:
+      id - The plot id
+      name - The plot name
+      type - The variable type. Check the VARTYPE enums available with this module
+      location - The variable location. Check the LOCATION enums available with this module
+      unit - The variable units. See https://nexusdemo.ensight.com/docs/python/html/ENS_UNITSSchema.html
+      unit_label - The label for the variable units. See https://nexusdemo.ensight.com/docs/python/html/ENS_UNITSSchema.html
+      tags: a dictionary containing the metadata for the variable
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.begin_update">
+<signature>(session_id: int, update_num: int, time: float, rank: int, chunk: int) -> None</signature>
+<paramnames>['session_id', 'update_num', 'time', 'rank', 'chunk']</paramnames>
+<description>
+Method to begin an update.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect()
+update_num: int
+    update number of this update, must be monotonically increasing
+time: float
+    time in seconds this update is for
+rank: int 
+    the rank we are sending an update for (zero based)
+chunk: int
+    the chunk number this update is for (zero based)
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.connect">
+<signature>(server_id: int, flags: Optional[int]=0, secret: Optional[str]=None) -> int</signature>
+<paramnames>['server_id', 'flags=', 'secret=']</paramnames>
+<description>
+Connect to dvs server.
+
+This call will connect to a server that has been created using server_create()
+If server is being created locally server_start() must be called before connecting.
+
+Parameters
+----------
+server_id: int
+    id of server created by server_create()
+flags: int
+    flags for client setup. Check the FLAGS enums available with this module
+secret: str
+    shared secret to use for client, can be an empty string
+
+Returns
+-------
+session_id: int
+    dynamic id created for connection, used for client dvs calls
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.convert_rotation_to_quaternion">
+<signature>(session_id: int, axis_start: List[float], axis_end: List[float], relative_rotation_angle: float) -> List[float]</signature>
+<paramnames>['session_id', 'axis_start', 'axis_end', 'relative_rotation_angle']</paramnames>
+<description>
+Connect to dvs server.
+
+This call will connect to a server that has been created using server_create()
+If server is being created locally server_start() must be called before connecting.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect()
+axis_start: list
+    a list of floats describing the starting point of the line representing the rotation axis
+axis_end: list
+    a list of floats describing the end point of the line representing the rotation axis
+relative_rotation_angle: float
+    the angle to rotate around the give axis
+
+Returns
+-------
+quaternion: list
+    the quaternion representation of the rotation
+</description>
+</override>
+
+
+<override namespace="dynamic_visualization_store.create_query_from_server">
+<signature>(server_id: int, filter: Optional[str]=None) -> IQueryObject</signature>
+<paramnames>['server_id', 'filter=']</paramnames>
+<description>
+Create a query object from an existing server, to be used against its datasets.
+
+Parameters
+----------
+server_id: int
+    id of server created by server_create()
+filter: str
+    an optional filter to select the objects to be found
+
+Returns
+-------
+query: IQueryObject
+    the query object requested
+</description>
+</override>
+
+
+<override namespace="dynamic_visualization_store.create_query_instance">
+<signature>(empty) -> IQueryObject</signature>
+<paramnames>['empty']</paramnames>
+<description>
+Create instance of a Query
+
+Returns
+-------
+query: IQueryObject
+    the query object requested
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.delete_item">
+<signature>(session_id: int, update_num: int, rank: int, filter: str) -> None</signature>
+<paramnames>['session_id', 'update_num', 'rank', 'filter']</paramnames>
+<description>
+Delete an item.
+
+This call must be called by every rank similarly to how begin_update happens.
+
+Currently this will only allow for timesteps to be deleted. In the future it can
+be expanded to all objects via the filter mechanism. Currently
+this supports the operands of eq, gt, gte, lt, lte. Example: To delete all timesteps
+>= time 1.1 the filter would be "/timestep.time/gte/1.1//" .
+It also currently only supports one statement so
+/timestep.time/gt/1.1//and/timestep.time/lt/2.1// is not valid as of version 1.1.0.
+
+Note: The update number should be monotonically increasing with the begin_update calls
+
+Parameters
+----------
+session_id: int
+    id for session created by connect()
+update_num: int
+    update number of this update, must be monotonically increasing
+rank: int 
+    rank making this call
+filter: str
+    filter for the item(s) to delete. 
+    Check https://developer.ansys.com/docs/post-processing - Dynamic Visualization Store API 
+    for detailed info.
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.end_init">
+<signature>(session_id: int) -> None</signature>
+<paramnames>['session_id']</paramnames>
+<description>
+End the initialization of the rank.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect()
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.end_update">
+<signature>(session_id: int) -> None</signature>
+<paramnames>['session_id']</paramnames>
+<description>
+Call to end the update for this timestep/rank/chunk.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect()
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.server_create">
+<signature>(uri: str) -> int</signature>
+<paramnames>['uri']</paramnames>
+<description>
+Create a Dynamic Visualization Store server instance for the client to connect.
+
+Parameters
+----------
+uri: str
+    URI of server to create of the format protocol://hostname:port, i.e. grpc://localhost:50055 or null:// 
+    Check https://developer.ansys.com/docs/post-processing - Dynamic Visualization Store API 
+    for detailed info.
+
+Returns
+-------
+server_id: int
+    unique id dynamically created for this server
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.server_get_uri">
+<signature>(server_id: int) -> str</signature>
+<paramnames>['server_id']</paramnames>
+<description>
+Create a Dynamic Visualization Store server instance for the client to connect.
+
+Parameters
+----------
+server_id: int
+    id of server created by server_create()
+
+Returns
+-------
+uri: str
+    The uri of the input server
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.server_shutdown">
+<signature>(server_id: int) -> None</signature>
+<paramnames>['server_id']</paramnames>
+<description>
+Shutdown this server thread.
+
+Parameters
+----------
+server_id: int
+    id of server created by server_create()
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.server_shutdown_all">
+<signature>(empty) -> None</signature>
+<paramnames>['empty']</paramnames>
+<description>
+Shutdown all DVS servers.
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.server_start">
+<signature>(server_id: int, server_num: Optional[int]=0, local_ranks: Optional[int]=1, options: Optional[Dict[str]]=None) -> None</signature>
+<paramnames>['server_id', 'server_num=', 'local_ranks=', 'options=']</paramnames>
+<description>
+Start a Dynamic Visualization Store server in a separate thread to receive data from solver node.
+
+Parameters
+----------
+server_id: int
+    id of server created by server_create()
+server_number: int
+    The server number (zero based) for this server, should be unique for each server in this server group.
+local_ranks: int
+    Number of local ranks this server will handle.
+options: dict
+    A dictionary holding the server options. 
+    Check https://developer.ansys.com/docs/post-processing - Dynamic Visualization Store API 
+    for detailed info.
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.server_started">
+<signature>(server_id: int) -> bool</signature>
+<paramnames>['server_id']</paramnames>
+<description>
+Shutdown this server thread.
+
+Parameters
+----------
+server_id: int
+    id of server created by server_create()
+
+Returns
+-------
+(bool):
+    True if the server is running
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.server_timestep_count">
+<signature>(server_id: int) -> Tuple[int, int]</signature>
+<paramnames>['server_id']</paramnames>
+<description>
+Query a Dynamic Visualization Store server as to the number of timesteps it contains
+
+Parameters
+----------
+server_id: int
+    id of server created by server_create()
+
+Returns
+-------
+(tuple):
+    A tuple containing the number of incomplete timesteps and the number of complete
+    timesteps currently in the server
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.set_unit_system">
+<signature>(session_id: int, unit: str) -> None</signature>
+<paramnames>['session_id', 'unit']</paramnames>
+<description>
+Set a unit system (optional but recommended)
+
+Note: This cannot be changed once end_init() is called
+
+Parameters
+----------
+session_id: int
+    id for session created by connect(): int
+unit: str
+    The units to set. See https://nexusdemo.ensight.com/docs/python/html/ENS_UNITSSchema.html
+
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.shutdown">
+<signature>(empty) -> None</signature>
+<paramnames>['empty']</paramnames>
+<description>
+Shuts down the api, performing any necessary cleanup.
+
+Also calls server_shutdown_all() if any servers are currently running
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.update_copy_previous_part">
+<signature>(session_id: int, part_id: int, options: str) -> None</signature>
+<paramnames>['session_id', 'part_id', 'options']</paramnames>
+<description>
+Copy data from the previous timestep before applying other data.
+
+Currently we only support the options of empty string, mesh or mesh.vars
+empty string and mesh.vars will copy the mesh, connectivity, and nodal/elemental variables.
+mesh only copies the mesh and connectivity.
+
+Note: Currently plots and case/part constant variables will not be copied via this option
+and must always be sent.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect(): int
+part_id: int
+    the id of the part we are copying data for, UINT32_MAX to select all parts
+options: str
+    options to copy. An empty string or 'mesh.vars' will copy the mesh, connectivity, and nodal/elemental variables.
+    'mesh' only copies the mesh and connectivity.
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.update_elements">
+<signature>(session_id: int, part_id: int, elem_type: int, indices: numpy.ndarray) -> None</signature>
+<paramnames>['session_id', 'part_id', 'elem_type', 'indices']</paramnames>
+<description>
+Update elements for a specific part and element type
+
+This will update the elements for a part. The number of indices needed will vary depending on the
+type and the num_elements. I.E. if updating triangles with 3 elements the indices array should be of
+size 9 (3 triangles with 3 indices)
+
+Parameters
+----------
+session_id: int
+    id for session created by connect(): int
+part_id: int
+    unique id of part to update elements for (must match parts added with dvs_add_part_info)
+elem_type: int
+    element type of elements to update (points, triangles, quads, etc.). Check the ELEMTYPE enum available with this module.
+indices: numpy.ndarray
+    node indices for each element, for ordering info per element type see EnSight's User Manual, section 9.2.3 Supported EnSight Gold Elements
+</description>
+</override>
+
+
+</docstrings>
