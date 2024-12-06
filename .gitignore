@@ -44,4 +44,5 @@ src/ansys/api/pyensight/calc_funcs.py
 src/ansys/api/pyensight/ensight_api.py
 src/ansys/api/pyensight/ens_*.py
 src/ansys/api/pyensight/assets/ensight_api_test_assets.txt
+src/dvs_api.py
 .venv/
