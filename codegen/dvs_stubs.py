@@ -21,9 +21,11 @@ class ProcessDVS:
         output = '"""dvs_base module"""\n'
         output+= '"""Thed dvs_base module provides an interface to the dynamic_visualization store module"""\n\n'
         output+= "from typing import Any, Optional, List, Dict, Tuple, TYPE_CHECKING\n\n"
+        output+= "import numpy\n"
+        output+= "numpy.set_printoptions(threshold=numpy.inf)\n"
+        output+= "numpy.set_printoptions(linewidth=numpy.inf)\n\n"
         output+= "if TYPE_CHECKING:\n"
         output+= "    from ansys.pyensight.core import Session\n"
-        output+= "    import numpy\n\n"
         output+= "class dvs_base:\n"
         output+= f'{INDENT}def __init__(self, session: Optional["Session"]=None, dvs_module: Optional[Any]=None):\n'
         output += f'{2*INDENT}self._session = session\n'
@@ -149,11 +151,15 @@ class ProcessDVS:
             s += f"{new_indent}    return self._dvs_module.{name}({module_signature})\n"
             s += f"{new_indent}if self._session:\n"
             s += f"{new_indent}    self._session.cmd('import dynamic_visualization_store', do_eval=False)\n"
+            s += f"{new_indent}    self._session.cmd('import numpy', do_eval=False)\n"
             s += f"{new_indent}    arg_list = []\n"
             if paramnames is not None:
                 if not "empty" in paramnames:
                     for p in [s for s in paramnames if not s.endswith("=")]:
-                        s += f"{new_indent}    arg_list.append({p}.__repr__())\n"
+                        s += f"{new_indent}    data = {p}.__repr__()\n"
+                        s += f"{new_indent}    if isinstance({p}, numpy.ndarray):\n"
+                        s += f'{new_indent}        data = data.replace("array(", "numpy.array(").replace("float32", "numpy.float32")\n'
+                        s += f"{new_indent}    arg_list.append(data)\n"
             else:
                 s += f"{new_indent}    for arg in args:\n"
                 s += f"{new_indent}        arg_list.append(arg.__repr__())\n"
@@ -161,10 +167,16 @@ class ProcessDVS:
             if paramnames is not None:
                 if not "empty" in paramnames:
                     for p in [s for s in paramnames if s.endswith("=")]:
-                        s += f'{new_indent}    arg_list.append(f"{p[:-1]}={{{p[:-1]}.__repr__()}}")\n'
+                        s += f'{new_indent}    data = {p[:-1]}.__repr__()\n'
+                        s += f'{new_indent}    if isinstance({p[:-1]}, numpy.ndarray):\n'
+                        s += f'{new_indent}        data = data.replace("array(", "numpy.array(").replace("float32", "numpy.float32")\n'
+                        s += f'{new_indent}    arg_list.append(data)\n'
             else:
                 s += f"{new_indent}    for key, value in kwargs.items():\n"
-                s += f'{new_indent}        arg_list.append(f"{{key}}={{value.__repr__()}}")\n'
+                s += f'{new_indent}        data = value.__repr__()\n'
+                s += f'{new_indent}        if isinstance(value, numpy.ndarray):\n'
+                s += f'{new_indent}            data = data.replace("array(", "numpy.array(").replace("float32", "numpy.float32")\n'
+                s += f'{new_indent}        arg_list.append(data)\n'
                 # build the command
             s += f'{new_indent}    arg_string = ",".join(arg_list)\n'
             s += f'{new_indent}    cmd = f"{namespace}({{arg_string}})"\n'
