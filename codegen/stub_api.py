@@ -15,6 +15,7 @@ from typing import Any, List, Optional
 from xml.etree import ElementTree
 
 from calculator_stubs import ProcessCalcuator
+from dvs_stubs import ProcessDVS
 
 UTILS_MAP = {
     'Views': 'views',
@@ -562,6 +563,8 @@ class ProcessAPI:
         comment = ""
         if desc.endswith("\n"):
             desc = desc[:-1]
+        if value_type == "ReportItemSourceInterface":
+            value_type = f"'{value_type}'"
         for _ in range(num_loops):
             s += "\n"
             s += f"{indent}@property\n"
@@ -603,6 +606,9 @@ class ProcessAPI:
         if classname in list_of_imports_cured:
             list_of_imports_cured.pop(list_of_imports_cured.index(classname))
         # the new class
+        ens_source = False
+        if classname.lower() == "ens_source":
+            ens_source = True
         s = f'"""{classname.lower()} module\n'
         s += "\n"
         s += f"The {classname.lower()} module provides a proxy interface to EnSight {classname} "
@@ -618,6 +624,8 @@ class ProcessAPI:
         s += "\n"
         s += "if TYPE_CHECKING:\n"
         s += "    from ansys.api.pyensight.ensight_api import " + ", ".join(list_of_imports_cured)
+        if ens_source:
+            s+= ", ReportItemSourceInterface"
         s += "\n\n"
         s += f"{indent}class {classname}({superclass}):\n"
         indent += "    "
@@ -820,6 +828,13 @@ def generate_stub_api() -> None:
     calc = ProcessCalcuator(text)
     outname = os.path.join(target_dir, os.path.basename(api_name).replace(".xml", ".py"))
     calc.process(target_dir, outname)
+    api_name = os.path.join(target_dir, "v0", "dvs_api.xml")
+    with open(api_name, "r", encoding="utf8") as fp:
+        text = fp.read()
+    dvs = ProcessDVS(text, overrides=overrides)
+    outname = os.path.join(target_dir, os.path.basename(api_name).replace(".xml", ".py"))
+    dvs.process(target_dir, outname)
+
 
 
 def generate() -> None:

@@ -1,0 +1,871 @@
+<docstrings>
+<override namespace="dynamic_visualization_store.add_metadata">
+<signature>(session_id: int, metadata: Dict[str, str]) -> None</signature>
+<paramnames>['session_id', 'metadata']</paramnames>
+<description>
+Add metadata for the current dataset.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect()
+metadata: dict 
+    A dictionary containing the metadata keys and values to be added
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.begin_init">
+<signature>(session_id: int, dataset_name: str, rank: int, total_ranks: int, num_chunks: int) -> None</signature>
+<paramnames>['session_id', 'dataset_name', 'rank', 'total_ranks', 'num_chunks']</paramnames>
+<description>
+Begin setup of rank.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect()
+dataset_name: str
+    name for dataset
+rank: int 
+    Rank this solver is processing (zero based)
+total_ranks: int
+    Total number of ranks across solver nodes
+num_chunks: int
+    Number of chunks for this rank (usually 1)
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.add_part_info">
+<signature>(session_id: int, parts: List[dict]) -> None</signature>
+<paramnames>['session_id', 'parts']</paramnames>
+<description>
+Add part info for simulation.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect()
+parts: list
+    A list of parts definition. Each part is defined via a dictionary defined like this:
+      id - The part id
+      name - The part name
+      structured: True if the part is structured
+      chunking: True if using chunking
+      tags: a dictionary containing the metadata for the part
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.add_part_rigid_body_motion">
+<signature>(session_id: int, part_id: int, update_num: int, quaternion: Optional[List[float]]=None, displacement: Optional[List[float]]=None, cg_offset: Optional[List[float]]=None) -> None</signature>
+<paramnames>['session_id', 'part_id', 'update_num', 'quaternion=', 'displacement=', 'cg_offset=']</paramnames>
+<description>
+Add rigid body motion data to a specific part for a specific update.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect()
+update_num: int
+    update number of this update, must be monotonically increasing
+quaternion: List[float]
+    the quaternion defining the rigid body rotation.   
+displacement: List[float]
+    a list describing the rigid body translation
+cg_offset: List[float]
+    a list describing the center of gravity offset to be applied before applying the rotation and the translation
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.add_plot_info">
+<signature>(session_id: int, plots: List[dict]) -> None</signature>
+<paramnames>['session_id', 'plots']</paramnames>
+<description>
+Add plot info for simulation.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect()
+plots: list
+    A list of plots definition. Each plot is defined via a dictionary defined like this:
+      id - The plot id
+      name - The plot name
+      x_axis_title - The X Axis title
+      x_axis_units - The X Axis units
+      y_axis_title - The Y Axis title
+      y_axis_units - The Y Axis units
+      tags: a dictionary containing the metadata for the plot
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.add_var_info">
+<signature>(session_id: int, variables: List[dict]) -> None</signature>
+<paramnames>['session_id', 'variables']</paramnames>
+<description>
+Add var info for simulation.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect()
+variables: list
+    A list of variable definitions. Each variable is defined via a dictionary defined like this:
+      id - The var id
+      name - The variable name
+      type - The variable type. Check the VARTYPE enums available with this module
+      location - The variable location. Check the LOCATION enums available with this module
+      unit - The variable units. See https://nexusdemo.ensight.com/docs/python/html/ENS_UNITSSchema.html
+      unit_label - The label for the variable units. See https://nexusdemo.ensight.com/docs/python/html/ENS_UNITSSchema.html
+      tags: a dictionary containing the metadata for the variable
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.begin_update">
+<signature>(session_id: int, update_num: int, time: float, rank: int, chunk: int) -> None</signature>
+<paramnames>['session_id', 'update_num', 'time', 'rank', 'chunk']</paramnames>
+<description>
+Method to begin an update.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect()
+update_num: int
+    update number of this update, must be monotonically increasing
+time: float
+    time in seconds this update is for
+rank: int 
+    the rank we are sending an update for (zero based)
+chunk: int
+    the chunk number this update is for (zero based)
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.connect">
+<signature>(server_id: int, flags: Optional[int]=0, secret: Optional[str]=None) -> int</signature>
+<paramnames>['server_id', 'flags=', 'secret=']</paramnames>
+<description>
+Connect to dvs server.
+
+This call will connect to a server that has been created using server_create()
+If server is being created locally server_start() must be called before connecting.
+
+Parameters
+----------
+server_id: int
+    id of server created by server_create()
+flags: int
+    flags for client setup. Check the FLAGS enums available with this module
+secret: str
+    shared secret to use for client, can be an empty string
+
+Returns
+-------
+session_id: int
+    dynamic id created for connection, used for client dvs calls
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.convert_rotation_to_quaternion">
+<signature>(session_id: int, axis_start: List[float], axis_end: List[float], relative_rotation_angle: float) -> List[float]</signature>
+<paramnames>['session_id', 'axis_start', 'axis_end', 'relative_rotation_angle']</paramnames>
+<description>
+Connect to dvs server.
+
+This call will connect to a server that has been created using server_create()
+If server is being created locally server_start() must be called before connecting.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect()
+axis_start: list
+    a list of floats describing the starting point of the line representing the rotation axis
+axis_end: list
+    a list of floats describing the end point of the line representing the rotation axis
+relative_rotation_angle: float
+    the angle to rotate around the give axis
+
+Returns
+-------
+quaternion: list
+    the quaternion representation of the rotation
+</description>
+</override>
+
+
+<override namespace="dynamic_visualization_store.create_query_from_server">
+<signature>(server_id: int, filter: Optional[str]=None) -> IQueryObject</signature>
+<paramnames>['server_id', 'filter=']</paramnames>
+<description>
+Create a query object from an existing server, to be used against its datasets.
+
+Parameters
+----------
+server_id: int
+    id of server created by server_create()
+filter: str
+    an optional filter to select the objects to be found
+
+Returns
+-------
+query: IQueryObject
+    the query object requested
+</description>
+</override>
+
+
+<override namespace="dynamic_visualization_store.create_query_instance">
+<signature>(empty) -> IQueryObject</signature>
+<paramnames>['empty']</paramnames>
+<description>
+Create instance of a Query
+
+Returns
+-------
+query: IQueryObject
+    the query object requested
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.delete_item">
+<signature>(session_id: int, update_num: int, rank: int, filter: str) -> None</signature>
+<paramnames>['session_id', 'update_num', 'rank', 'filter']</paramnames>
+<description>
+Delete an item.
+
+This call must be called by every rank similarly to how begin_update happens.
+
+Currently this will only allow for timesteps to be deleted. In the future it can
+be expanded to all objects via the filter mechanism. Currently
+this supports the operands of eq, gt, gte, lt, lte. Example: To delete all timesteps
+>= time 1.1 the filter would be "/timestep.time/gte/1.1//" .
+It also currently only supports one statement so
+/timestep.time/gt/1.1//and/timestep.time/lt/2.1// is not valid as of version 1.1.0.
+
+Note: The update number should be monotonically increasing with the begin_update calls
+
+Parameters
+----------
+session_id: int
+    id for session created by connect()
+update_num: int
+    update number of this update, must be monotonically increasing
+rank: int 
+    rank making this call
+filter: str
+    filter for the item(s) to delete. 
+    Check https://developer.ansys.com/docs/post-processing - Dynamic Visualization Store API 
+    for detailed info.
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.end_init">
+<signature>(session_id: int) -> None</signature>
+<paramnames>['session_id']</paramnames>
+<description>
+End the initialization of the rank.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect()
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.end_update">
+<signature>(session_id: int) -> None</signature>
+<paramnames>['session_id']</paramnames>
+<description>
+Call to end the update for this timestep/rank/chunk.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect()
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.server_create">
+<signature>(uri: str) -> int</signature>
+<paramnames>['uri']</paramnames>
+<description>
+Create a Dynamic Visualization Store server instance for the client to connect.
+
+Parameters
+----------
+uri: str
+    URI of server to create of the format protocol://hostname:port, i.e. grpc://localhost:50055 or null:// 
+    Check https://developer.ansys.com/docs/post-processing - Dynamic Visualization Store API 
+    for detailed info.
+
+Returns
+-------
+server_id: int
+    unique id dynamically created for this server
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.server_get_uri">
+<signature>(server_id: int) -> str</signature>
+<paramnames>['server_id']</paramnames>
+<description>
+Create a Dynamic Visualization Store server instance for the client to connect.
+
+Parameters
+----------
+server_id: int
+    id of server created by server_create()
+
+Returns
+-------
+uri: str
+    The uri of the input server
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.server_shutdown">
+<signature>(server_id: int) -> None</signature>
+<paramnames>['server_id']</paramnames>
+<description>
+Shutdown this server thread.
+
+Parameters
+----------
+server_id: int
+    id of server created by server_create()
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.server_shutdown_all">
+<signature>(empty) -> None</signature>
+<paramnames>['empty']</paramnames>
+<description>
+Shutdown all DVS servers.
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.server_start">
+<signature>(server_id: int, server_num: Optional[int]=0, local_ranks: Optional[int]=1, options: Optional[Dict[str, str]]=None) -> None</signature>
+<paramnames>['server_id', 'server_num=', 'local_ranks=', 'options=']</paramnames>
+<description>
+Start a Dynamic Visualization Store server in a separate thread to receive data from solver node.
+
+Parameters
+----------
+server_id: int
+    id of server created by server_create()
+server_number: int
+    The server number (zero based) for this server, should be unique for each server in this server group.
+local_ranks: int
+    Number of local ranks this server will handle.
+options: dict
+    A dictionary holding the server options. 
+    Check https://developer.ansys.com/docs/post-processing - Dynamic Visualization Store API 
+    for detailed info.
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.server_started">
+<signature>(server_id: int) -> bool</signature>
+<paramnames>['server_id']</paramnames>
+<description>
+Shutdown this server thread.
+
+Parameters
+----------
+server_id: int
+    id of server created by server_create()
+
+Returns
+-------
+(bool):
+    True if the server is running
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.server_timestep_count">
+<signature>(server_id: int) -> Tuple[int, int]</signature>
+<paramnames>['server_id']</paramnames>
+<description>
+Query a Dynamic Visualization Store server as to the number of timesteps it contains
+
+Parameters
+----------
+server_id: int
+    id of server created by server_create()
+
+Returns
+-------
+(tuple):
+    A tuple containing the number of incomplete timesteps and the number of complete
+    timesteps currently in the server
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.set_unit_system">
+<signature>(session_id: int, unit: str) -> None</signature>
+<paramnames>['session_id', 'unit']</paramnames>
+<description>
+Set a unit system (optional but recommended)
+
+Note: This cannot be changed once end_init() is called
+
+Parameters
+----------
+session_id: int
+    id for session created by connect(): int
+unit: str
+    The units to set. See https://nexusdemo.ensight.com/docs/python/html/ENS_UNITSSchema.html
+
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.shutdown">
+<signature>(empty) -> None</signature>
+<paramnames>['empty']</paramnames>
+<description>
+Shuts down the api, performing any necessary cleanup.
+
+Also calls server_shutdown_all() if any servers are currently running
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.update_copy_previous_part">
+<signature>(session_id: int, part_id: int, options: str) -> None</signature>
+<paramnames>['session_id', 'part_id', 'options']</paramnames>
+<description>
+Copy data from the previous timestep before applying other data.
+
+Currently we only support the options of empty string, mesh or mesh.vars
+empty string and mesh.vars will copy the mesh, connectivity, and nodal/elemental variables.
+mesh only copies the mesh and connectivity.
+
+Note: Currently plots and case/part constant variables will not be copied via this option
+and must always be sent.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect(): int
+part_id: int
+    the id of the part we are copying data for, UINT32_MAX to select all parts
+options: str
+    options to copy. An empty string or 'mesh.vars' will copy the mesh, connectivity, and nodal/elemental variables.
+    'mesh' only copies the mesh and connectivity.
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.update_elements">
+<signature>(session_id: int, part_id: int, elem_type: int, indices: 'numpy.ndarray') -> None</signature>
+<paramnames>['session_id', 'part_id', 'elem_type', 'indices']</paramnames>
+<description>
+Update elements for a specific part and element type
+
+This will update the elements for a part. The number of indices needed will vary depending on the
+type and the num_elements. I.E. if updating triangles with 3 elements the indices array should be of
+size 9 (3 triangles with 3 indices)
+
+Parameters
+----------
+session_id: int
+    id for session created by connect(): int
+part_id: int
+    unique id of part to update elements for (must match parts added with add_part_info)
+elem_type: int
+    element type of elements to update (points, triangles, quads, etc.). Check the ELEMTYPE enum available with this module.
+indices: numpy.ndarray
+    node indices for each element, for ordering info per element type see EnSight's User Manual, section 9.2.3 Supported EnSight Gold Elements
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.update_elements_polygon">
+<signature>(session_id: int, part_id: int, elem_type: int, nodes_per_polygon: 'numpy.ndarray', indices: 'numpy.ndarray') -> None</signature>
+<paramnames>['session_id', 'part_id', 'elem_type', 'nodes_per_polygon', 'indices']</paramnames>
+<description>
+Update N-SIDED elements
+
+This method will send over a list of arbitrarily sized polygons. The nodes_per_polygon param is an array
+containing the size of each polygon. I.E. if sending a quadrangle, and a 25 sided element the nodes_per_polygon
+array might look like [4, 25]. The size of the indices array would be 4+25=29 in this example where the first
+4 items in the indices array would correspond to the first item in the nodes_per_polygon array, the next 25 items
+in the indices array would correspond to the second item in the nodes_per_polygon array
+
+Parameters
+----------
+session_id: int
+    id for session created by connect(): int
+part_id: int
+    unique id of part to update elements for (must match parts added with add_part_info)
+elem_type: int
+    element type of elements to update (points, triangles, quads, etc.). Check the ELEMTYPE enum available with this module.
+nodes_per_polygon: numpy.ndarray
+    Array containing number of nodes in each element/polygon
+indices: numpy.ndarray
+    node indices for each element, for ordering info per element type see EnSight's User Manual, section 9.2.3 Supported EnSight Gold Elements
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.update_elements_polyhedral">
+<signature>(session_id: int, part_id: int, elem_type: int, faces_per_element: 'numpy.ndarray', nodes_per_face: 'numpy.ndarray', indices: 'numpy.ndarray') -> None</signature>
+<paramnames>['session_id', 'part_id', 'elem_type', 'faces_per_element', 'nodes_per_face']</paramnames>
+<description>
+Update N-FACED Elements
+
+Parameters
+----------
+session_id: int
+    id for session created by connect(): int
+part_id: int
+    unique id of part to update elements for (must match parts added with add_part_info)
+elem_type: int
+    element type of elements to update (points, triangles, quads, etc.). Check the ELEMTYPE enum available with this module.
+faces_per_element: numpy.ndarray
+    Array of how many faces are in each element
+nodes_per_face: numpy.ndarray
+    Array of how many nodes each face contains
+indices: numpy.ndarray
+    node indices for each element, for ordering info per element type see EnSight's User Manual, section 9.2.3 Supported EnSight Gold Elements
+</description>
+</override>
+
+
+
+<override namespace="dynamic_visualization_store.update_nodes">
+<signature>(session_id: int, part_id: int, x: 'numpy.ndarray', y: 'numpy.ndarray', z: 'numpy.ndarray') -> None</signature>
+<paramnames>['session_id', 'part_id', 'x', 'y', 'z']</paramnames>
+<description>
+Update nodes for a specific part
+
+Parameters
+----------
+session_id: int
+    id for session created by connect(): int
+part_id: int
+    unique id of part to update elements for (must match parts added with add_part_info)
+x: numpy.ndarray
+    array of x components for nodes
+y: numpy.ndarray
+    array of y components for nodes
+z: numpy.ndarray
+    array of z components for nodes
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.update_nodes_curvilinear">
+<signature>(session_id: int, part_id: int, global_ijk_max: 'numpy.ndarray', local_ijk_min: 'numpy.ndarray', local_ijk_max: 'numpy.ndarray', x_vals: 'numpy.ndarray', y_vals: 'numpy.ndarray', z_vals: 'numpy.ndarray') -> None</signature>
+<paramnames>['session_id', 'part_id', 'global_ijk_max', 'local_ijk_min', 'local_ijk_max', 'x_vals', 'y_vals', 'z_vals']</paramnames>
+<description>
+Update the nodes for a curvilinear structured part.
+
+A curvilinear structured part is represented by the global IJK grid across ranks, the local sub-block's IJK rank,
+and the actual XYZ values for each IJK grid point in the local grid.
+
+Local IJK Dimensions: The min/max represent a local sub-block from the overall global grid. This could be the entire range
+if not splitting the grid into multiple ranks or a specific slice. For example you could have a 2ix3jx4k grid where it was
+split across the I dimension. One rank would specify min/max IJK as min:[0,0,0], max:[0,2,3], the other rank would specify
+min/max IJK as min:[1,0,0], max:[1,2,3]. If sending the data all as one rank it would be the full range of: min:[0,0,0], max:[1,2,3]
+
+IJK Vals: These specify the actual XYZ location for each IJK value in the grid. The order of these should be by the fastest changing dimension
+being I, the next being J, and the next being K. I.E. for a 2x2x2 grid the x_vals array would contain the X component for IJK values:
+[i0 j0 k0][i1 j0 k0][i0 j1 k0][i1 j1 k0][i0 j0 k1][i1 j0 k1][i0 j1 k1][i1 j1 k1].
+
+Note: iblanking information is sent via update_var_node_scalar() using STRUCTURED_IBLANKED_NODES as the variable id
+Note: Ghost element information is sent via update_var_element_scalar() using STRUCTURED_GHOST_ELEMENTS as the variable id
+
+Parameters
+----------
+session_id: int
+    id for session created by connect(): int
+part_id: int
+    unique id of part to update elements for (must match parts added with add_part_info)
+global_ijk_max: numpy.ndarray 
+    The one based global ijk max of the mesh across all ranks
+local_ijk_min: numpy.ndarray 
+    the zero based local sub-block ijk min for this rank
+local_ijk_max: numpy.ndarray 
+    the zero based local sub-block ijk max for this rank
+x_vals: numpy.ndarray
+    The actual X component for each IJK value for the local sub block (size (iMax-iMin+1)*(jMax-jMin+1)*(kMax-kMin+1))
+y_vals: numpy.ndarray
+    The actual Y component for each IJK value for the local sub block (size (iMax-iMin+1)*(jMax-jMin+1)*(kMax-kMin+1))
+z_vals: numpy.ndarray
+    The actual Z component for each IJK value for the local sub block (size (iMax-iMin+1)*(jMax-jMin+1)*(kMax-kMin+1))
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.update_nodes_parallelepiped">
+<signature>(session_id: int, part_id: int, global_ijk_max: 'numpy.ndarray', local_ijk_min: 'numpy.ndarray', local_ijk_max: 'numpy.ndarray', origin: 'numpy.ndarray', dir_i: 'numpy.ndarray', dir_j: 'numpy.ndarray', dir_k: 'numpy.ndarray', i_vals: 'numpy.ndarray', j_vals: 'numpy.ndarray', k_vals: 'numpy.ndarray') -> None</signature>
+<paramnames>['session_id', 'part_id', 'global_ijk_max', 'local_ijk_min', 'local_ijk_max', 'origin', 'dir_i', 'dir_j', 'dir_k', 'i_vals', 'j_vals', 'k_vals']</paramnames>
+<description>
+Update the nodes for a parallelepiped structured part
+
+A parallelepiped structured part is represented by the global IJK grid across ranks, the local sub-block's IJK range,
+the ogigin of the IJK sub-block, the normalized direction (unit) vectors for each IJK dimension, and the absolute distances
+for each IJK index from the origin of this sub-block.
+
+Global IJK Max: for a 2x3x4 grid would be: [2 3 4]
+Local IJK Dimensions: The min/max represent a local sub-block from the overall global grid. This could be the entire range
+if not splitting the grid into multiple ranks or a specific slice. For example you could have a 2ix3jx4k grid where it was
+split across the I dimension. One rank would specify min/max IJK as min:[0,0,0], max:[0,2,3], the other rank would specify
+min/max IJK as min:[1,0,0], max:[1,2,3]. If sending the data all as one rank it would be the full range of: min:[0,0,0], max:[1,2,3]
+Direction (Unit) Vectors: These represent the XYZ orientation of each IJK axis. I.E. if I==X J==Y K==Z the vectors would be
+dir_i: [1 0 0], dir_j: [0 1 0], dir_k: [0 0 1]
+
+IJK Vals: These specify the absolute distance from the XYZ origin in each IJK direction(specified by the direction vectors).
+So if the distance was 1 between every I index, 2 between every J index, and 3 in between every K index the arrays would look like:
+i_vals: [0 1 2 3 4 5....]
+j_vals: [0 2 4 6 8 10....]
+k_vals: [0 3 6 9 12 15....]
+
+Note: iblanking information is sent via update_var_node_scalar() using STRUCTURED_IBLANKED_NODES as the variable id
+Note: Ghost element information is sent via update_var_element_scalar() using STRUCTURED_GHOST_ELEMENTS as the variable id
+
+Parameters
+----------
+session_id: int
+    id for session created by connect(): int
+part_id: int
+    unique id of part to update elements for (must match parts added with add_part_info)
+global_ijk_max: numpy.ndarray 
+    The one based global ijk max of the mesh across all ranks
+local_ijk_min: numpy.ndarray 
+    the zero based local sub-block ijk min for this rank
+local_ijk_max: numpy.ndarray 
+    the zero based local sub-block ijk max for this rank
+origin:
+    the XYZ origin of this local ijk block
+dir_i:
+    The normalized XYZ direction vector for the i dimension
+dir_j:
+    The normalized XYZ direction vector for the j dimension
+dir_k:
+    The normalized XYZ direction vector for the k dimension
+i_vals: numpy.ndarray
+    The absolute distance vector for each i index from the local sub block's origin of size iMax-iMin+1
+j_vals: numpy.ndarray
+    The absolute distance vector for each j index from the local sub block's origin of size iMax-iMin+1
+k_vals: numpy.ndarray
+    The absolute distance vector for each k index from the local sub block's origin of size iMax-iMin+1
+</description>
+</override>
+
+
+<override namespace="dynamic_visualization_store.update_plot">
+<signature>(session_id: int, plot_id: int, x: 'numpy.ndarray', y: 'numpy.ndarray') -> None</signature>
+<paramnames>['session_id', 'plot_id', 'x', 'y']</paramnames>
+<description>
+Update the data for a plot.
+
+
+
+Parameters
+----------
+session_id: int
+    id for session created by connect(): int
+plot_id: int
+    id of plot to update matching plot_infos sent with dvs_add_plot_info
+x: numpy.ndarray
+    array of x axis values
+y: numpy.ndarray
+    array of y axis values
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.update_var_case_scalar">
+<signature>(session_id: int, var_id: int, value: 'float') -> None</signature>
+<paramnames>['session_id', 'var_id', 'value']</paramnames>
+<description>
+Update value of case scalar
+
+
+Parameters
+----------
+session_id: int
+    id for session created by connect(): int
+var_id: int
+    unique id of variable to update (must match var added with add_var_info)
+value: float
+    value to update
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.update_var_case_vector">
+<signature>(session_id: int, var_id: int, value: 'numpy.ndarray') -> None</signature>
+<paramnames>['session_id', 'var_id', 'value']</paramnames>
+<description>
+Update value of case vector
+
+
+Parameters
+----------
+session_id: int
+    id for session created by connect(): int
+var_id: int
+    unique id of variable to update (must match var added with add_var_info)
+value: numpy.ndarray
+    array of x,y,z values (size 3)
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.update_var_element_scalar">
+<signature>(session_id: int, var_id: int, part_id: int, elem_type: int, values: 'numpy.ndarray') -> None</signature>
+<paramnames>['session_id', 'var_id', 'part_id', 'elem_type', 'values']</paramnames>
+<description>
+Update a field of scalars on elements
+
+Parameters
+----------
+session_id: int
+    id for session created by connect(): int
+var_id: int
+    unique id of variable to update (must match var added with add_var_info)
+part_id: int
+    unique id for part element is associated with (must match parts added with add_part_info)
+elem_type: int
+    element type of elements to update (points, triangles, quads, etc.). Check the ELEMTYPE enum available with this module.
+values: numpy.ndarray
+    array of scalars
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.update_var_element_scalar_int64">
+<signature>(session_id: int, var_id: int, part_id: int, elem_type: int, values: 'numpy.ndarray') -> None</signature>
+<paramnames>['session_id', 'var_id', 'part_id', 'elem_type', 'values']</paramnames>
+<description>
+Update a field of int64 scalars on elements
+
+Parameters
+----------
+session_id: int
+    id for session created by connect(): int
+var_id: int
+    unique id of variable to update (must match var added with add_var_info)
+part_id: int
+    unique id for part element is associated with (must match parts added with add_part_info)
+elem_type: int
+    element type of elements to update (points, triangles, quads, etc.). Check the ELEMTYPE enum available with this module.
+values: numpy.ndarray
+    array of scalars
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.update_var_element_vector">
+<signature>(session_id: int, var_id: int, part_id: int, elem_type: int, values: 'numpy.ndarray') -> None</signature>
+<paramnames>['session_id', 'var_id', 'part_id', 'elem_type', 'values']</paramnames>
+<description>
+ Updates a field of vectors on elements.
+
+Parameters
+----------
+session_id: int
+    id for session created by connect(): int
+var_id: int
+    unique id of variable to update (must match var added with add_var_info)
+part_id: int
+    unique id for part element is associated with (must match parts added with add_part_info)
+elem_type: int
+    element type of elements to update (points, triangles, quads, etc.). Check the ELEMTYPE enum available with this module.
+values: numpy.ndarray
+    array of values to udpate, should be the size of number of elements * 3, values are XYZ XYZ XYZ.......... XYZ
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.update_var_node_scalar">
+<signature>(session_id: int, var_id: int, part_id: int, values: 'numpy.ndarray') -> None</signature>
+<paramnames>['session_id', 'var_id', 'part_id', 'values']</paramnames>
+<description>
+Update a field of scalars on nodes
+
+Parameters
+----------
+session_id: int
+    id for session created by connect(): int
+var_id: int
+    unique id of variable to update (must match var added with add_var_info)
+part_id: int
+    unique id for part element is associated with (must match parts added with add_part_info)
+values: numpy.ndarray
+    array of scalars
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.update_var_node_scalar_int64">
+<signature>(session_id: int, var_id: int, part_id: int, values: 'numpy.ndarray') -> None</signature>
+<paramnames>['session_id', 'var_id', 'part_id', 'values']</paramnames>
+<description>
+Update a field of int64 scalars on nodes
+
+Parameters
+----------
+session_id: int
+    id for session created by connect(): int
+var_id: int
+    unique id of variable to update (must match var added with add_var_info)
+part_id: int
+    unique id for part element is associated with (must match parts added with add_part_info)
+values: numpy.ndarray
+    array of scalars
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.update_var_node_vector">
+<signature>(session_id: int, var_id: int, part_id: int, values: 'numpy.ndarray') -> None</signature>
+<paramnames>['session_id', 'var_id', 'part_id', 'values']</paramnames>
+<description>
+Update a field of vectors on nodes
+
+Parameters
+----------
+session_id: int
+    id for session created by connect(): int
+var_id: int
+    unique id of variable to update (must match var added with add_var_info)
+part_id: int
+    unique id for part element is associated with (must match parts added with add_part_info)
+values: numpy.ndarray
+    array of values to udpate, should be the size of number of nodes * 3, values are XYZ XYZ XYZ.......... XYZ
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.update_var_part_scalar">
+<signature>(session_id: int, var_id: int, part_id: int, value: float) -> None</signature>
+<paramnames>['session_id', 'var_id', 'part_id', 'value']</paramnames>
+<description>
+Update value of part scalar
+
+
+Parameters
+----------
+session_id: int
+    id for session created by connect(): int
+var_id: int
+    unique id of variable to update (must match var added with add_var_info)
+part_id: int
+    unique id of part associated with (must match parts added with add_part_info)
+value: float
+    value_to_update
+</description>
+</override>
+
+<override namespace="dynamic_visualization_store.update_var_part_vector">
+<signature>(session_id: int, var_id: int, part_id: int, value: 'numpy.ndarray') -> None</signature>
+<paramnames>['session_id', 'var_id', 'part_id', 'value']</paramnames>
+<description>
+Update value of part scalar
+
+
+Parameters
+----------
+session_id: int
+    id for session created by connect(): int
+var_id: int
+    unique id of variable to update (must match var added with add_var_info)
+part_id: int
+    unique id of part associated with (must match parts added with add_part_info)
+value: numpy.ndarray
+    array of x,y,z values (size 3)
+</description>
+</override>
+
+</docstrings>
