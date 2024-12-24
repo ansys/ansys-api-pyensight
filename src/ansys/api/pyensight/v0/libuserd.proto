@@ -100,6 +100,9 @@ service LibUSERDService {
    // Is geometry changing? Static, changing conn, changing coords?
    rpc Reader_is_geometry_changing(Reader_is_geometry_changingRequest) returns(Reader_is_geometry_changingReply) {}  
 
+   // Check/allow the dataset to change
+   rpc Reader_dynamic_update_check(Reader_dynamic_update_checkRequest) returns(Reader_dynamic_update_checkReply) {}
+
    // Parts
    // =====
    // Get number of nodes in a part
@@ -211,6 +214,28 @@ enum VariableType
     UNKNOW_VAR_TYPE = 5;
 }
 
+enum PartHints
+{
+    UNDEFINED = 0;
+    STATIC_COORDS   = 1; // 1 << 0
+    CHANGING_COORDS = 2; // 1 << 1
+    CHANGING_CONNECTIVITY = 4; // 1 << 2
+}
+
+enum UpdateHints
+{
+    NONE = 0;
+    TIME = 1; // 1 << 0
+    STRUCTURE = 2; // 1 << 1
+    DATA = 4; // 1 << 2
+}
+
+enum RankValues
+{
+    SINGLE_RANK = 0;
+    ALL_RANKS = -1;
+}
+
 enum ErrorCodes
 {
     SUCCESS = 0;
@@ -221,14 +246,7 @@ enum ErrorCodes
     UNIMPLEMENTED = 5;
     NOT_FOUND = 6;
     UNKNOWN = 7;
-}
-
-enum PartHints
-{
-    UNDEFINED = 0;
-    STATIC_COORDS   = 1; // 1 << 0
-    CHANGING_COORDS = 2; // 1 << 1
-    CHANGING_CONNECTIVITY = 4; // 1 << 2
+    SINGLE_READER_ALLOWED = 8;
 }
 
 message OptBooleanInfo {
@@ -260,18 +278,17 @@ message ReaderInfo {
     uint32 id = 1;
     string name = 2;
     string description = 3;
-    string fileLabel1 = 4; 
-    string fileLabel2 = 5;
+    string file_label1 = 4; 
+    string file_label2 = 5;
     OptionInfo options = 6; 
 }
 
 message Reader {
-    string unitSystem = 1;
+    string unit_system = 1;
     map<string,string>  metadata = 2;
     string raw_metadata = 3;
-
-    uint32 currentTimeStep = 4;
-    uint32 currentTimeSet  = 5;
+    float reader_api_version = 4;
+    uint32 number_of_ranks = 5;
 }
 
 message RigidBodyTransform {
@@ -289,61 +306,33 @@ message PartInfo {
     string name = 4;
     map<string,string>  metadata = 5;
     PartHints hints = 6;
-    float reader_api_version = 7;
 }
 
 message VariableInfo {
     uint32 id = 1;
     string name = 2;
-    string unitLabel = 3;
-    string unitDims = 4;
-    VariableLocation varLocation = 5;
+    string unit_label = 3;
+    string unit_dims = 4;
+    VariableLocation location = 5;
     VariableType type = 6;
-    bool timeVarying = 7;
-    bool isComplex = 8;
-    bool interleaveFlag = 9;
-    uint32 numOfComponents = 10;
+    bool time_varying = 7;
+    bool complex = 8;
+    bool interleave_flag = 9;
+    uint32 number_of_components = 10;
     map<string,string>  metadata = 11;
 }
 
 message QueryInfo {
     uint32 id = 1;
     string name = 2;
-    string xTitle = 3;
-    string yTitle = 4;
+    string x_title = 3;
+    string y_title = 4;
     map<string,string>  metadata = 5;
 }
 
-message NoRequest {
-}
-
-message IntReply {
-    uint32 result = 1;
-}
-
-message FloatReply {
-    float result = 1;
-}
-
-message StringReply {
-    string result = 1;
-}
-
-message BoolReply {
-    bool result = 1;
-}
-
-message ErrorCodeReply {
-    ErrorCodes errorCode = 1;
-}
-
 // Request, Reply
-message ElementTypeRequest {
-    ElementType elemType = 1;
-}
-
 message Libuserd_nodes_per_elementRequest {
-    ElementType elemType = 1;
+    ElementType type = 1;
 }
 
 message Libuserd_nodes_per_elementReply {
@@ -351,7 +340,7 @@ message Libuserd_nodes_per_elementReply {
 }
 
 message Libuserd_element_is_ghostRequest {
-    ElementType elemType = 1;
+    ElementType type = 1;
 }
 
 message Libuserd_element_is_ghostReply {
@@ -359,7 +348,7 @@ message Libuserd_element_is_ghostReply {
 }
 
 message Libuserd_element_is_zooRequest {
-    ElementType elemType = 1;
+    ElementType type = 1;
 }
 
 message Libuserd_element_is_zooReply {
@@ -367,7 +356,7 @@ message Libuserd_element_is_zooReply {
 }
 
 message Libuserd_element_is_nsidedRequest {
-    ElementType elemType = 1;
+    ElementType type = 1;
 }
 
 message Libuserd_element_is_nsidedReply {
@@ -375,7 +364,7 @@ message Libuserd_element_is_nsidedReply {
 }
 
 message Libuserd_element_is_nfacedRequest {
-    ElementType elemType = 1;
+    ElementType type = 1;
 }
 
 message Libuserd_element_is_nfacedReply {
@@ -411,7 +400,7 @@ message Libuserd_ansys_release_numberReply{
 }
 
 message Libuserd_element_type_to_stringRequest {
-    ElementType elemType = 1;
+    ElementType type = 1;
 }
 
 message Libuserd_element_type_to_stringReply {
@@ -419,7 +408,7 @@ message Libuserd_element_type_to_stringReply {
 }
 
 message Libuserd_set_reader_pathRequest {
-    string readerPath = 1;
+    string reader_path = 1;
 }
 
 message Libuserd_set_reader_pathReply {
@@ -442,7 +431,7 @@ message Libuserd_get_all_readersRequest {
 }
 
 message Libuserd_get_all_readersReply {
-    repeated ReaderInfo readerInfo = 1;
+    repeated ReaderInfo reader_info = 1;
 }
 
 message Libuserd_query_formatRequest {
@@ -451,7 +440,7 @@ message Libuserd_query_formatRequest {
 }
 
 message Libuserd_query_formatReply {
-    repeated ReaderInfo readerInfo = 1;
+    repeated ReaderInfo reader_info = 1;
 }
 
 message Libuserd_shutdownRequest {
@@ -464,7 +453,7 @@ message ReaderInfo_read_datasetRequest {
     uint32 reader_id  = 1;
     string filename_1 = 2;
     string filename_2 = 3;
-    bool useParallel  = 4;
+    uint32 parallel_node_count  = 4;
     repeated bool option_values_bools = 5;
     repeated uint32 option_values_options = 6;
     repeated string option_values_fields = 7;
@@ -478,49 +467,49 @@ message Reader_partsRequest {
 }
 
 message Reader_partsReply {
-    repeated PartInfo partList = 1;
+    repeated PartInfo part_list = 1;
 }
 
 message Reader_variablesRequest {
 }
 
 message Reader_variablesReply {
-    repeated VariableInfo variableList = 1;
+    repeated VariableInfo variable_list = 1;
 }
 
 message Reader_queriesRequest {
 }
 
 message Reader_queriesReply {
-    repeated QueryInfo queryList = 1;
+    repeated QueryInfo query_list = 1;
 }
 
 message Reader_get_number_of_time_setsRequest {
 }
 
 message Reader_get_number_of_time_setsReply {
-    uint32 numberOfTimeSets = 1;
+    uint32 number_of_timesets = 1;
 }
 
 message Reader_timevaluesRequest {
-    uint32 timeSetNumber = 1;
+    uint32 timeset_number = 1;
 }
 
 message Reader_timevaluesReply {
-    repeated float timeValues = 1;
+    repeated float time_values = 1;
 }
 
 message Reader_set_timevalueRequest {
-    float timeValue  = 1;
-    uint32 timesetNumber = 2;
+    float time_value  = 1;
+    uint32 timeset_number = 2;
 }
 
 message Reader_set_timevalueReply {
 }
 
 message Reader_set_timestepRequest {
-    uint32 timeStep = 1;
-    uint32 timeSetNumber = 2;
+    uint32 time_step = 1;
+    uint32 timeset_number = 2;
 }
 
 message Reader_set_timestepReply {
@@ -528,6 +517,7 @@ message Reader_set_timestepReply {
 
 message Reader_variable_valueRequest {
     uint32 variable_id = 1;
+    uint32 rank = 2;
 }
 
 message Reader_variable_valueReply {
@@ -538,19 +528,29 @@ message Reader_is_geometry_changingRequest {
 }
 
 message Reader_is_geometry_changingReply {
-    bool isGeomChanging = 1;
+    bool is_geometry_changing = 1;
+}
+
+message Reader_dynamic_update_checkRequest {
+    uint32 changes_allowed = 1;
+}
+
+message Reader_dynamic_update_checkReply {
+    uint32 changed = 1;
 }
 
 message Part_num_nodesRequest {
     uint32 part_id  = 1;
+    uint32 rank = 2;
 }
 
 message Part_num_nodesReply {
-    uint32 numNodes = 1;
+    uint32 num_nodes = 1;
 }
 
 message Part_nodesRequest {
     uint32 part_id  = 1;
+    uint32 rank = 2;
 }
 
 message Part_nodesReply {
@@ -561,15 +561,17 @@ message Part_nodesReply {
 
 message Part_num_elementsRequest {
     uint32 part_id  = 1;
+    uint32 rank = 2;
 }
 
 message Part_num_elementsReply {
-    map<uint32, uint32> elementCount = 1;
+    map<uint32, uint32> element_count = 1;
 }
 
 message Part_element_connRequest {
     uint32 part_id  = 1;
-    ElementType elemType = 2;
+    ElementType type = 2;
+    uint32 rank = 3;
 }
 
 message Part_element_connReply {
@@ -580,68 +582,73 @@ message Part_element_connReply {
 
 message Part_element_conn_nsided_sizeRequest {
     uint32 part_id  = 1;
-    ElementType elemType = 2;
+    ElementType type = 2;
+    uint32 rank = 3;
 }
 
 message Part_element_conn_nsided_sizeReply {
-    uint32 nodesPerPolygonSize = 1;
-    uint32 nodesSize = 2;
+    uint32 nodes_per_polygon_size = 1;
+    uint32 nodes_size = 2;
 }
 
 message Part_element_conn_nsidedRequest {
     uint32 part_id  = 1;
-    ElementType elemType = 2;
+    ElementType type = 2;
+    uint32 rank = 3;
 }
 
 message Part_element_conn_nsidedReply {
     uint32 nodes_offset = 1;
     uint32 nodes_total_size = 2;
-    repeated uint32 nodesPerPolygon = 3;
+    repeated uint32 nodes_per_polygon = 3;
     uint32 indices_offset = 4;
     uint32 indices_total_size = 5;
-    repeated uint32 nodeIndices = 6;
+    repeated uint32 node_indices = 6;
 }
 
 message Part_element_conn_nfaced_sizeRequest {
     uint32 part_id  = 1;
-    ElementType elemType = 2;
+    ElementType type = 2;
+    uint32 rank = 3;
 }
 
 message Part_element_conn_nfaced_sizeReply {
-    uint32 facesPerElementSize = 1;
-    uint32 nodesPerFaceSize = 2;
-    uint32 nodeIndicesSize = 3; 
+    uint32 faces_per_element_size = 1;
+    uint32 nodes_per_face_size = 2;
+    uint32 node_indices_size = 3; 
 }
 
 message Part_element_conn_nfacedRequest {
     uint32 part_id  = 1;
-    ElementType elemType = 2;
+    ElementType type = 2;
+    uint32 rank = 3;
 }
 
 message Part_element_conn_nfacedReply {
     uint32 face_offset = 1;
     uint32 face_total_size = 2;
-    repeated uint32 facesPerElement = 3;
+    repeated uint32 faces_per_element = 3;
     uint32 npf_offset = 4;
     uint32 npf_total_size = 5;
-    repeated uint32 nodesPerFace = 6;
+    repeated uint32 nodes_per_face = 6;
     uint32 nodes_offset = 7;
     uint32 nodes_total_size = 8;
-    repeated uint32 nodeIndices = 9;
+    repeated uint32 node_indices = 9;
 }
 
 message Part_variable_valuesRequest {
     uint32 part_id = 1;
     uint32 var_id = 2;
-    ElementType elemType = 3;
-    uint32 varComponent = 4;
+    ElementType type = 3;
+    uint32 component = 4;
     bool complex = 5;
+    uint32 rank = 6;
 }
 
 message Part_variable_valuesReply {
     uint32 offset = 1;
     uint32 total_size = 2;
-    repeated float varValues = 3;
+    repeated float values = 3;
 }
 
 message Part_rigid_body_transformRequest {
@@ -653,19 +660,19 @@ message Part_rigid_body_transformReply {
 }
 
 message Variable_get_variable_type_stringRequest {
-    VariableType variableType = 1;
+    VariableType type = 1;
 }
 
 message Variable_get_variable_type_stringReply {
-    string variableType = 1;
+    string type = 1;
 }
 
 message Variable_get_variable_location_stringRequest {
-    VariableLocation varLocation = 1;
+    VariableLocation location = 1;
 }
 
 message Variable_get_variable_location_stringReply {
-    string varLocation = 1;
+    string location = 1;
 }
 
 message Query_num_pointsRequest {
@@ -673,7 +680,7 @@ message Query_num_pointsRequest {
 }
 
 message Query_num_pointsReply {
-    uint32 numPoints = 1;
+    uint32 num_points = 1;
 }
 
 message Query_dataRequest {
