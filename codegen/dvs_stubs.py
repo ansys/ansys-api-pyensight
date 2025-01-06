@@ -158,7 +158,7 @@ class ProcessDVS:
                     for p in [s for s in paramnames if not s.endswith("=")]:
                         s += f"{new_indent}    data = {p}.__repr__()\n"
                         s += f"{new_indent}    if isinstance({p}, numpy.ndarray):\n"
-                        s += f'{new_indent}        data = data.replace("array(", "numpy.array(").replace("float32", "numpy.float32")\n'
+                        s += f'{new_indent}        data = data.replace("array(", "numpy.array(").replace("float32", "numpy.float32").replace("float64", "numpy.float64").replace("int32", "numpy.int32").replace("int64", "numpy.int64")\n'
                         s += f"{new_indent}    arg_list.append(data)\n"
             else:
                 s += f"{new_indent}    for arg in args:\n"
@@ -169,13 +169,13 @@ class ProcessDVS:
                     for p in [s for s in paramnames if s.endswith("=")]:
                         s += f'{new_indent}    data = {p[:-1]}.__repr__()\n'
                         s += f'{new_indent}    if isinstance({p[:-1]}, numpy.ndarray):\n'
-                        s += f'{new_indent}        data = data.replace("array(", "numpy.array(").replace("float32", "numpy.float32")\n'
+                        s += f'{new_indent}        data = data.replace("array(", "numpy.array(").replace("float32", "numpy.float32").replace("float64", "numpy.float64").replace("int32", "numpy.int32").replace("int64", "numpy.int64")\n'
                         s += f'{new_indent}    arg_list.append(data)\n'
             else:
                 s += f"{new_indent}    for key, value in kwargs.items():\n"
                 s += f'{new_indent}        data = value.__repr__()\n'
                 s += f'{new_indent}        if isinstance(value, numpy.ndarray):\n'
-                s += f'{new_indent}            data = data.replace("array(", "numpy.array(").replace("float32", "numpy.float32")\n'
+                s += f'{new_indent}            data = data.replace("array(", "numpy.array(").replace("float32", "numpy.float32").replace("float64", "numpy.float64").replace("int32", "numpy.int32").replace("int64", "numpy.int64")\n'
                 s += f'{new_indent}        arg_list.append(data)\n'
                 # build the command
             s += f'{new_indent}    arg_string = ",".join(arg_list)\n'
