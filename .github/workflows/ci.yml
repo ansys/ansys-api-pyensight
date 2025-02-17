@@ -41,7 +41,7 @@ jobs:
           python -c "from ansys.api.pyensight.v0 import enshell_pb2, enshell_pb2_grpc"
 
       - name: Upload packages
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ansys-api-pyensight-packages
           path: dist/
