@@ -150,4 +150,36 @@ Example:
 </description>
 </override>
 
+<override namespace="ensight.objs.ENS_PART.simba_tracepaths">
+<signature>(variables: Optional[List[Any]]=None) -> dict</signature>
+<paramnames>['variables=']</paramnames>
+<code>import numpy
+arg_obj = f"{self._remote_obj()}"
+arg_list = []
+arg_list.append(variables.__repr__())
+arg_string = ",".join(arg_list)
+cmd = f"{arg_obj}.simba_tracepaths({arg_string})"
+if variables:
+    self._session.cmd(f"enscl._simba_traces={cmd}", do_eval=False)
+    cmd = "{key:[value.shape, value.dtype.str, value.tostring()] for (key, value)"
+    cmd += " in enscl._simba_traces.items() if key !='variables'}"
+    ret_dict_coords = self._session.cmd(cmd)
+    cmd = "{key:[value.shape, value.dtype.str, value.tostring()] for (key, value)"
+    cmd += " in enscl._simba_traces['variables'].items()}"
+    ret_dict_vars = self._session.cmd(cmd)
+    ret_dict = {}
+    for key, value in ret_dict_coords.items():
+        ret_dict[key] = numpy.frombuffer(value[2], dtype=value[1]).reshape(value[0])
+    ret_dict["variables"] = {}
+    for key, value in ret_dict_vars.items():
+        ret_dict["variables"][key] = numpy.frombuffer(value[2], dtype=value[1]).reshape(value[0])
+else:
+    cmd_wrap = f"{{key:[value.shape, value.dtype.str, value.tostring()] for (key, value) in {cmd}.items()}}"
+    ret_dict = self._session.cmd(cmd_wrap)
+    for key, value in ret_dict.items():
+        ret_dict[key] = numpy.frombuffer(value[2], dtype=value[1]).reshape(value[0])
+return ret_dict
+</code>
+</override>
+
 </docstrings>
