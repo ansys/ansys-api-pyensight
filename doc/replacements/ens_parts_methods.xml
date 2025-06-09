@@ -72,7 +72,7 @@ arg_list.append(f"activate={activate.__repr__()}")
 arg_string = ",".join(arg_list)
 cmd = f"{arg_obj}.get_values({arg_string})"
 # use dictionary completion to convert to [shape, string]
-cmd_wrap = f"{{key:[value.shape, value.dtype.str, value.tostring()] for (key, value) in {cmd}.items()}}"
+cmd_wrap = f"{{key:[value.shape, value.dtype.str, value.tobytes()] for (key, value) in {cmd}.items()}}"
 ret_dict = self._session.cmd(cmd_wrap)
 # unwrap the dictionary
 for key, value in ret_dict.items():
@@ -161,10 +161,10 @@ arg_string = ",".join(arg_list)
 cmd = f"{arg_obj}.simba_tracepaths({arg_string})"
 if variables:
     self._session.cmd(f"enscl._simba_traces={cmd}", do_eval=False)
-    cmd = "{key:[value.shape, value.dtype.str, value.tostring()] for (key, value)"
+    cmd = "{key:[value.shape, value.dtype.str, value.tobytes()] for (key, value)"
     cmd += " in enscl._simba_traces.items() if key !='variables'}"
     ret_dict_coords = self._session.cmd(cmd)
-    cmd = "{key:[value.shape, value.dtype.str, value.tostring()] for (key, value)"
+    cmd = "{key:[value.shape, value.dtype.str, value.tobytes()] for (key, value)"
     cmd += " in enscl._simba_traces['variables'].items()}"
     ret_dict_vars = self._session.cmd(cmd)
     ret_dict = {}
@@ -174,7 +174,7 @@ if variables:
     for key, value in ret_dict_vars.items():
         ret_dict["variables"][key] = numpy.frombuffer(value[2], dtype=value[1]).reshape(value[0])
 else:
-    cmd_wrap = f"{{key:[value.shape, value.dtype.str, value.tostring()] for (key, value) in {cmd}.items()}}"
+    cmd_wrap = f"{{key:[value.shape, value.dtype.str, value.tobytes()] for (key, value) in {cmd}.items()}}"
     ret_dict = self._session.cmd(cmd_wrap)
     for key, value in ret_dict.items():
         ret_dict[key] = numpy.frombuffer(value[2], dtype=value[1]).reshape(value[0])
