@@ -828,6 +828,12 @@ def generate_stub_api() -> None:
     calc = ProcessCalcuator(text)
     outname = os.path.join(target_dir, os.path.basename(api_name).replace(".xml", ".py"))
     calc.process(target_dir, outname)
+    api_name = os.path.join(target_dir, "v0", "calc_math.xml")
+    with open(api_name, "r", encoding="utf8") as fp:
+        math_text = fp.read()
+    math_calc = ProcessCalcuator(math_text, math=True)
+    math_outname = os.path.join(target_dir, os.path.basename(api_name).replace(".xml", ".py"))
+    math_calc.process(target_dir, math_outname)
     api_name = os.path.join(target_dir, "v0", "dvs_api.xml")
     with open(api_name, "r", encoding="utf8") as fp:
         text = fp.read()

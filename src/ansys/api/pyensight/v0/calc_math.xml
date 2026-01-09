@@ -1,0 +1,768 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<enscalc>
+  <prompts>
+    <prompt name="MATH_VARFLT">a constant value, or a scalar, vector or constant variable</prompt>
+    <prompt name="MATH_VARVEC">vector variable</prompt>
+    <prompt name="MATH_VARSCL">a scalar variable</prompt>
+    <prompt name="MATH_CONST">a constant</prompt>
+    <prompt name="MATH_VARSCLCONFLT">a constant value or a scalar or constant variable</prompt>
+    <prompt name="MATH_VARSCLCONINT">degrees of freedom: a constant value or a scalar or constant variable</prompt>
+  </prompts>
+  <types>
+    <type name="MATH_VARFLT">
+      <var_const/>
+      <var_scalar/>
+      <var_vector/>
+      <element/>
+      <nodal/>
+      <val_float/>
+    </type>
+    <type name="MATH_CONST">
+      <var_const/>
+    </type>
+    <type name="MATH_VARVEC">
+      <var_vector/>
+      <element/>
+      <nodal/>
+    </type>
+    <type name="MATH_VARSCL">
+      <var_scalar/>
+      <element/>
+      <nodal/>
+    </type>
+    <type name="MATH_VARSCLCONFLT">
+      <var_const/>
+      <var_scalar/>
+      <element/>
+      <nodal/>
+      <val_float/>
+    </type>
+    <type name="MATH_VARSCLCONINT">
+      <var_const/>
+      <var_scalar/>
+      <element/>
+      <nodal/>
+      <val_int/>
+    </type>
+  </types>
+  <math>
+    <function name="ABS">
+      <description>Computes the component-wise absolute value of the parameter.</description>
+      <class>Math</class>
+      <class>Trigonometry</class>
+      <visible/>
+      <functionid name="MATH_ABS">20000</functionid>
+      <result>
+        <description>component-wise absolute value of the value</description>
+        <dimensions>a</dimensions>
+        <type name="MATH_VARFLT"/>
+      </result>
+      <param name="value">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARFLT"/>
+        <type name="MATH_VARFLT"/>
+      </param>
+    </function>
+    <function name="ACOS">
+      <description>Computes the component-wise arccosine of the parameter in radians.</description>
+      <class>Math</class>
+      <class>Trigonometry</class>
+      <visible/>
+      <functionid name="MATH_ACOS">20001</functionid>
+      <result>
+        <description>component-wise arccosine of the value</description>
+        <dimensions>D</dimensions>
+        <type name="MATH_VARFLT"/>
+      </result>
+      <param name="value">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARFLT"/>
+        <type name="MATH_VARFLT"/>
+      </param>
+    </function>
+    <function name="ASIN">
+      <description>Computes the component-wise arcsine of the parameter in radians.</description>
+      <class>Math</class>
+      <class>Trigonometry</class>
+      <visible/>
+      <functionid name="MATH_ASIN">20002</functionid>
+      <result>
+        <description>component-wise arcsine of the parameter in radians.</description>
+        <dimensions>D</dimensions>
+        <type name="MATH_VARFLT"/>
+      </result>
+      <param name="value">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARFLT"/>
+        <type name="MATH_VARFLT"/>
+      </param>
+    </function>
+    <function name="ATAN">
+      <description>Computes the component-wise arctangent of the parameter in radians.</description>
+      <class>Math</class>
+      <class>Trigonometry</class>
+      <visible/>
+      <functionid name="MATH_ATAN">20003</functionid>
+      <result>
+        <description>component-wise arctangent of the parameter in radians.</description>
+        <dimensions>D</dimensions>
+        <type name="MATH_VARFLT"/>
+      </result>
+      <param name="value">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARFLT"/>
+        <type name="MATH_VARFLT"/>
+      </param>
+    </function>
+    <function name="ATAN2">
+      <description>Computes the component-wise arctangent of the dx/dy parameters in radians.</description>
+      <class>Math</class>
+      <class>Trigonometry</class>
+      <visible/>
+      <functionid name="MATH_ATAN2">20004</functionid>
+      <result>
+        <description>component-wise arctangent of the dx and dy values</description>
+        <dimensions>D</dimensions>
+        <type name="MATH_VARFLT"/>
+      </result>
+      <param name="dy">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARFLT"/>
+        <type name="MATH_VARFLT"/>
+      </param>
+      <param name="dx">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARFLT"/>
+        <type name="MATH_VARFLT"/>
+      </param>
+    </function>
+    <function name="COS">
+      <description>Computes the component-wise cosine of the angle.  The angle is expressed in radians.</description>
+      <class>Math</class>
+      <class>Trigonometry</class>
+      <visible/>
+      <functionid name="MATH_COS">20005</functionid>
+      <result>
+        <description>component-wise cosine of the value</description>
+        <dimensions>/</dimensions>
+        <type name="MATH_VARFLT"/>
+      </result>
+      <param name="angle">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARFLT"/>
+        <type name="MATH_VARFLT"/>
+      </param>
+    </function>
+    <function name="CROSS">
+      <description>Computes the cross product of two vector parameters.</description>
+      <class>Math</class>
+      <visible/>
+      <functionid name="MATH_CROSS">20006</functionid>
+      <result>
+        <description>cross product of two vectors</description>
+        <dimensions>ab</dimensions>
+        <type name="MATH_VARVEC"/>
+      </result>
+      <param name="vector1">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARVEC"/>
+        <type name="MATH_VARVEC"/>
+      </param>
+      <param name="vector2">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARVEC"/>
+        <type name="MATH_VARVEC"/>
+      </param>
+    </function>
+    <function name="DOT">
+      <description>Computes the dot product of two vector parameters.</description>
+      <class>Math</class>
+      <visible/>
+      <functionid name="MATH_DOT">20007</functionid>
+      <result>
+        <description>dot product of two vectors</description>
+        <dimensions>ab</dimensions>
+        <type name="MATH_VARSCL"/>
+      </result>
+      <param name="vector1">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARVEC"/>
+        <type name="MATH_VARVEC"/>
+      </param>
+      <param name="vector2">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARVEC"/>
+        <type name="MATH_VARVEC"/>
+      </param>
+    </function>
+    <function name="EXP">
+      <description>Computes the component-wise raising of e to the specified parameter.</description>
+      <class>Math</class>
+      <visible/>
+      <functionid name="MATH_EXP">20008</functionid>
+      <result>
+        <description>component-wise raising e to the value</description>
+        <dimensions>a</dimensions>
+        <type name="MATH_VARFLT"/>
+      </result>
+      <param name="value">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARFLT"/>
+        <type name="MATH_VARFLT"/>
+      </param>
+    </function>
+    <function name="GT">
+      <description>Selects the greater of two parameter values.</description>
+      <class>Math</class>
+      <class>Logical</class>
+      <visible/>
+      <functionid name="MATH_GT">20009</functionid>
+      <result>
+        <description>component-wise greater value</description>
+        <dimensions>a</dimensions>
+        <type name="MATH_VARFLT"/>
+      </result>
+      <param name="value1">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARFLT"/>
+        <type name="MATH_VARFLT"/>
+      </param>
+      <param name="value2">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARFLT"/>
+        <type name="MATH_VARFLT"/>
+      </param>
+    </function>
+    <function name="INT">
+      <description>Computes the component-wise truncation of the parameter.</description>
+      <class>Math</class>
+      <visible/>
+      <functionid name="MATH_INT">20010</functionid>
+      <result>
+        <description>the component-wise truncation of the valuer</description>
+        <dimensions>a</dimensions>
+        <type name="MATH_VARFLT"/>
+      </result>
+      <param name="value">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARFLT"/>
+        <type name="MATH_VARFLT"/>
+      </param>
+    </function>
+    <function name="LOG">
+      <description>Computes the component-wise logarithm (base e) of the parameter.</description>
+      <class>Math</class>
+      <visible/>
+      <functionid name="MATH_LOG">20011</functionid>
+      <result>
+        <description>component-wise base e logarithm of the value</description>
+        <dimensions>a</dimensions>
+        <type name="MATH_VARFLT"/>
+      </result>
+      <param name="value">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARFLT"/>
+        <type name="MATH_VARFLT"/>
+      </param>
+    </function>
+    <function name="LOG10">
+      <description>Computes the component-wise logarithm (base 10) of the parameter.</description>
+      <class>Math</class>
+      <visible/>
+      <functionid name="MATH_LOG10">20012</functionid>
+      <result>
+        <description>component-wise base 10 logarithm of the value</description>
+        <dimensions>a</dimensions>
+        <type name="MATH_VARFLT"/>
+      </result>
+      <param name="value">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARFLT"/>
+        <type name="MATH_VARFLT"/>
+      </param>
+    </function>
+    <function name="LT">
+      <description>Selects the lesser of two parameter values.</description>
+      <class>Math</class>
+      <class>Logical</class>
+      <visible/>
+      <functionid name="MATH_LT">20013</functionid>
+      <result>
+        <description>component-wise lesser value</description>
+        <dimensions>a</dimensions>
+        <type name="MATH_VARFLT"/>
+      </result>
+      <param name="value1">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARFLT"/>
+        <type name="MATH_VARFLT"/>
+      </param>
+      <param name="value2">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARFLT"/>
+        <type name="MATH_VARFLT"/>
+      </param>
+    </function>
+    <function name="RMS">
+      <description>Computes the root mean square (magnitude) of the vector (SQRT(DOT(v,v))).</description>
+      <class>Math</class>
+      <functionid name="MATH_RMS">20014</functionid>
+      <result>
+        <description>the root mean square (magnitude) of the vector (SQRT(DOT(v,v)))</description>
+        <dimensions>a</dimensions>
+        <type name="MATH_VARFLT"/>
+      </result>
+      <param name="value">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARVEC"/>
+        <type name="MATH_VARVEC"/>
+      </param>
+    </function> 
+    <function name="RND">
+      <description>Computes the component-wise rounding of the parameter to the nearest integer.</description>
+      <class>Math</class>
+      <visible/>
+      <functionid name="MATH_RND">20015</functionid>
+      <result>
+        <description>the component-wise rounding of the value to the nearest integer</description>
+        <dimensions>a</dimensions>
+        <type name="MATH_VARFLT"/>
+      </result>
+      <param name="value">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARFLT"/>
+        <type name="MATH_VARFLT"/>
+      </param>
+    </function>
+   <function name="MOD">
+      <description>Computes the remainder after using of integer division to divide the first value by the second. Both input values are first converted to integers.</description>
+      <class>Math</class>
+      <visible/>
+      <functionid name="MATH_MOD">20016</functionid>
+      <result>
+        <description>integer division remainder</description>
+        <dimensions>a/b</dimensions>
+        <type name="MATH_VARFLT"/>
+      </result>
+      <param name="value1">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONFLT"/>
+        <type name="MATH_VARSCLCONFLT"/>
+      </param>
+      <param name="value2">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONFLT"/>
+        <type name="MATH_VARSCLCONFLT"/>
+      </param>
+    </function>
+    <function name="SIN">
+      <description>Computes the component-wise sine of the angle.  The angle is expressed in radians.</description>
+      <class>Math</class>
+      <class>Trigonometry</class>
+      <visible/>
+      <functionid name="MATH_SIN">20017</functionid>
+      <result>
+        <description>the component-wise sine of the value</description>
+        <dimensions>/</dimensions>
+        <type name="MATH_VARFLT"/>
+      </result>
+      <param name="angle">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARFLT"/>
+        <type name="MATH_VARFLT"/>
+      </param>
+    </function>
+    <function name="SQRT">
+      <description>Computes the component-wise square root of the parameter.</description>
+      <class>Math</class>
+      <visible/>
+      <functionid name="MATH_SQRT">20018</functionid>
+      <result>
+        <description>the component-wise square root of the value</description>
+        <dimensions>/</dimensions>
+        <type name="MATH_VARFLT"/>
+      </result>
+      <param name="value">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARFLT"/>
+        <type name="MATH_VARFLT"/>
+      </param>
+    </function>
+    <function name="TAN">
+      <description>Computes the component-wise tangent of the angle.  The angle is expressed in radians.</description>
+      <class>Math</class>
+      <class>Trigonometry</class>
+      <visible/>
+      <functionid name="MATH_TAN">20019</functionid>
+      <result>
+        <description>the component-wise tangent of the value</description>
+        <dimensions>/</dimensions>
+        <type name="MATH_VARFLT"/>
+      </result>
+      <param name="angle">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARFLT"/>
+        <type name="MATH_VARFLT"/>
+      </param>
+    </function>
+    <function name="CDF_NORM">
+      <description>Computes the cumulative normal distribution function evaluated at v.</description>
+      <class>Math</class>
+      <class>Statistics</class>
+      <visible/>
+      <functionid name="MATH_CDF_NORM">20020</functionid>
+      <result>
+        <description>cumulative normal distribution function</description>
+        <dimensions>/</dimensions>
+        <type name="MATH_VARSCLCONFLT"/>
+      </result>
+      <param name="v">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONFLT"/>
+        <type name="MATH_VARSCLCONFLT"/>
+      </param>
+    </function>
+    <function name="PDF_NORM">
+      <description>Computes the normal probability density function evaluated at v.</description>
+      <class>Math</class>
+      <class>Statistics</class>
+      <visible/>
+      <functionid name="MATH_PDF_NORM">20021</functionid>
+      <result>
+        <description>normal probability density function</description>
+        <dimensions>/</dimensions>
+        <type name="MATH_VARSCLCONFLT"/>
+      </result>
+      <param name="v">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONFLT"/>
+        <type name="MATH_VARSCLCONFLT"/>
+      </param>
+    </function>
+    <function name="CDF_T">
+      <description>Computes the cumulative Student's T distribution function for the value v with k degrees of freedom.</description>
+      <class>Math</class>
+      <class>Statistics</class>
+      <visible/>
+      <functionid name="MATH_CDF_T">20022</functionid>
+      <result>
+        <description>cumulative Student's T distribution function with k degrees of freedom</description>
+        <dimensions>/</dimensions>
+        <type name="MATH_VARSCLCONFLT"/>
+      </result>
+      <param name="v">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONFLT"/>
+        <type name="MATH_VARSCLCONFLT"/>
+      </param>
+      <param name="k"> 
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONINT"/>
+        <type name="MATH_VARSCLCONINT"/>
+      </param>
+    </function>
+    <function name="PDF_T">
+      <description>Computes the Student's T probability density function for the value v with k degrees of freedom.</description>
+      <class>Math</class>
+      <class>Statistics</class>
+      <visible/>
+      <functionid name="MATH_PDF_T">20023</functionid>
+      <result>
+        <description>Student's T probability density function with k degrees of freedom</description>
+        <dimensions>/</dimensions>
+        <type name="MATH_VARSCLCONFLT"/>
+      </result>
+      <param name="v">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONFLT"/>
+        <type name="MATH_VARSCLCONFLT"/>
+      </param>
+      <param name="k">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONINT"/>
+        <type name="MATH_VARSCLCONINT"/>
+      </param>
+    </function>
+    <function name="CDF_F">
+      <description>Computes the cumulative F distribution function for the value v with j and k degrees of freedom.</description>
+      <class>Math</class>
+      <class>Statistics</class>
+      <visible/>
+      <functionid name="MATH_CDF_F">20024</functionid>
+      <result>
+        <description>cumulative F distribution function with j and k degrees of freedom</description>
+        <dimensions>/</dimensions>
+        <type name="MATH_VARSCLCONFLT"/>
+      </result>
+      <param name="v">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONFLT"/>
+        <type name="MATH_VARSCLCONFLT"/>
+      </param>
+      <param name="j">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONINT"/>
+        <type name="MATH_VARSCLCONINT"/>
+      </param>
+      <param name="k">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONINT"/>
+        <type name="MATH_VARSCLCONFLT"/>
+      </param>
+    </function>
+    <function name="PDF_F">
+      <description>Computes the F probability density function for the value v with j and k degrees of freedom.</description>
+      <class>Math</class>
+      <class>Statistics</class>
+      <visible/>
+      <functionid name="MATH_PDF_F">20025</functionid>
+      <result>
+        <description>F probability density function with j and k degrees of freedom</description>
+        <dimensions>/</dimensions>
+        <type name="MATH_VARSCLCONFLT"/>
+      </result>
+      <param name="v">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONFLT"/>
+        <type name="MATH_VARSCLCONFLT"/>
+      </param>
+      <param name="j">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONINT"/>
+        <type name="MATH_VARSCLCONINT"/>
+      </param>
+      <param name="k">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONINT"/>
+        <type name="MATH_VARSCLCONINT"/>
+      </param>
+    </function>
+    <function name="CDF_CHISQU">
+      <description>Computes the cumulative Chi-Squared distribution function for v with k degrees of freedom.</description>
+      <class>Math</class>
+      <class>Statistics</class>
+      <visible/>
+      <functionid name="MATH_CDF_CHISQU">20026</functionid>
+      <result>
+        <description>cumulative Chi-Squared distribution function with k degrees of freedom</description>
+        <dimensions>/</dimensions>
+        <type name="MATH_VARSCLCONFLT"/>
+      </result>
+      <param name="v">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONFLT"/>
+        <type name="MATH_VARSCLCONFLT"/>
+      </param>
+      <param name="k">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONINT"/>
+        <type name="MATH_VARSCLCONINT"/>
+      </param>
+    </function>
+    <function name="PDF_CHISQU">
+      <description>Computes the Chi-Squared probability density function for v with k degrees of freedom.</description>
+      <class>Math</class>
+      <class>Statistics</class>
+      <visible/>
+      <functionid name="MATH_PDF_CHISQU">20027</functionid>
+      <result>
+        <description>Chi-Squared probability density function with k degrees of freedom</description>
+        <dimensions>/</dimensions>
+        <type name="MATH_VARSCLCONFLT"/>
+      </result>
+      <param name="v">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONFLT"/>
+        <type name="MATH_VARSCLCONFLT"/>
+      </param>
+      <param name="k">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONINT"/>
+        <type name="MATH_VARSCLCONINT"/>
+      </param>
+    </function>
+    <function name="IF_CMP">
+      <description>Compares two parameters and returns -1, 0 or 1 if value1 is less than, equal to or greater than value2 respectively.</description>
+      <class>Math</class>
+      <class>Logical</class>
+      <visible/>
+      <functionid name="MATH_IF_CMP">20028</functionid>
+      <result>
+        <description>returns -1, 0 or 1 if value1 is less than, equal to or greater than value2 respectively</description>
+        <dimensions>/</dimensions>
+        <type name="MATH_VARSCL"/>
+      </result>
+      <param name="value1">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONFLT"/>
+        <type name="MATH_VARSCLCONFLT"/>
+      </param>
+      <param name="value2">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONFLT"/>
+        <type name="MATH_VARSCLCONFLT"/>
+      </param>
+    </function>
+    <function name="IF_LT">
+      <description>Compares two parameters and returns 1 if value1 is less than value2, otherwise it returns 0.</description>
+      <class>Math</class>
+      <class>Logical</class>
+      <visible/>
+      <functionid name="MATH_IF_LT">20029</functionid>
+      <result>
+        <description>returns 1 if value1 is less than value2, otherwise 0</description>
+        <dimensions>/</dimensions>
+        <type name="MATH_VARSCL"/>
+      </result>
+      <param name="value1">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONFLT"/>
+        <type name="MATH_VARSCLCONFLT"/>
+      </param>
+      <param name="value2">
+        <description>scalar or constant variable as well as a constant value</description>
+        <dimensions>*</dimensions>
+        <type name="MATH_VARFLT"/>
+      </param>
+    </function>
+    <function name="IF_GT">
+      <description>Compares two parameters and returns 1 if value1 is greater than value2, otherwise it returns 0.</description>
+      <class>Math</class>
+      <class>Logical</class>
+      <visible/>
+      <functionid name="MATH_IF_GT">20030</functionid>
+      <result>
+        <description>returns 1 if value1 is greater than value2, otherwise 0</description>
+        <dimensions>/</dimensions>
+        <type name="MATH_VARSCL"/>
+      </result>
+      <param name="value1">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONFLT"/>
+        <type name="MATH_VARSCLCONFLT"/>
+      </param>
+      <param name="value2">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONFLT"/>
+        <type name="MATH_VARSCLCONFLT"/>
+      </param>
+    </function>
+    <function name="IF_EQ">
+      <description>Compares two parameters and returns 1 if value1 is equal to value2, otherwise it returns 0.</description>
+      <class>Math</class>
+      <class>Logical</class>
+      <visible/>
+      <functionid name="MATH_IF_EQ">20031</functionid>
+      <result>
+        <description>returns 1 if value1 is equal to value2, otherwise 0</description>
+        <dimensions>/</dimensions>
+        <type name="MATH_VARSCL"/>
+      </result>
+      <param name="value1">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONFLT"/>
+        <type name="MATH_VARSCLCONFLT"/>
+      </param>
+      <param name="value2">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONFLT"/>
+        <type name="MATH_VARSCLCONFLT"/>
+      </param>
+    </function>
+    <function name="PI">
+      <description>The mathematical constant value PI.</description>
+      <class>Math</class>
+      <visible/>
+      <functionid name="MATH_PI">20032</functionid>
+      <result>
+        <description>returns the value PI</description>
+        <dimensions>/</dimensions>
+        <type name="MATH_CONST"/>
+      </result>
+    </function>
+    <function name="UNDEFINED">
+      <description>The EnSight undefined variable value.</description>
+      <class>Math</class>
+      <visible/>
+      <functionid name="MATH_UNDEFINED">20033</functionid>
+      <result>
+        <description>returns the current EnSight undefined value</description>
+        <dimensions>/</dimensions>
+        <type name="MATH_CONST"/>
+      </result>
+    </function>
+    <function name="LOOKUP">
+      <description>Interpolates a value in a specific client specified lookup table.</description>
+      <class>Math</class>
+      <visible/>
+      <functionid name="MATH_LOOKUP">20034</functionid>
+      <result>
+        <description>interpolate the value in the specified table</description>
+        <dimensions>/</dimensions>
+        <type name="MATH_VARSCL"/>
+      </result>
+      <param name="table">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONFLT"/>
+        <type name="MATH_VARSCLCONFLT"/>
+      </param>
+      <param name="value">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="MATH_VARSCLCONFLT"/>
+        <type name="MATH_VARSCLCONFLT"/>
+      </param>
+    </function>
+  </math>
+</enscalc>
+

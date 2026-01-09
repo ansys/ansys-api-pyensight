@@ -6,32 +6,44 @@ INDENT = "    "
 
 
 class ProcessCalcuator:
-    def __init__(self, data: str):
+    def __init__(self, data: str, math=False):
         self._root: ElementTree.Element = ElementTree.fromstring(data)
         self._processed = ""
         self._docstring = ""
         self._arg_types = {}
         self._prompts = {}
+        self._end_lines = []
+        self._math = math
     
     def process(self, dirname: str, filename: str):
-        output = '"""ens_calculator module"""\n'
-        output+= '"""The ens_calculator module provides an interface to the EnSight calculator functions"""\n\n'
+        name = "ens_calculator"
+        if self._math:
+            name = "ens_math"
+        output = f'"""{name} module"""\n'
+        output+= f'"""The {name} module provides an interface to the EnSight {name.replace("ens_", "")} functions"""\n\n'
         output+= "try:\n"
         output+= f"{INDENT}import ensight\n"
         output+= "except ImportError:\n"
         output+= f"{INDENT}pass\n"
         output+= "from typing import TYPE_CHECKING, Union, List, Optional\n"
         output+= "from ansys.api.pyensight.ens_var import ENS_VAR\n"
+        if not self._math:
+            output += "from ansys.api.pyensight.calc_math import ens_math\n"
         output+= "from ansys.pyensight.core.utils.parts import convert_part\n"
         output+= "if TYPE_CHECKING:\n"
         output+= f"{INDENT}from ansys.api.pyensight import ensight_api\n\n"
         output+= f"{INDENT}from ansys.api.pyensight.ens_part import ENS_PART\n\n"
-        output+= "class ens_calculator:\n"
+        output+= f"class {name}:\n"
         output+= f'{INDENT}def __init__(self, ensight: Union["ensight_api.ensight", "ensight"]):\n'
         output+= f"{2*INDENT}self._ensight = ensight\n"
+        if not self._math:
+            output+= f"{2*INDENT}self.math = ens_math(self._ensight)\n"
         output+= f"{2*INDENT}self._func_counter = {{}}\n\n"
         self._process_xml()
         output+= self._processed
+        output+= "\n\n"
+        for line in self._end_lines:
+            output += line + "\n"
         with open(filename, "w") as f:
             f.write(output)
 
@@ -82,8 +94,17 @@ class ProcessCalcuator:
     def _process_args(self, args, prompts):
         is_list = False
         position = False
-        for raw_param_name, param_type in args.items():
+        prompts_dict = {name: prompt for name, prompt in prompts}
+        # Pre-count total occurrences of each parameter name
+        total_counts = {}
+        for raw_param_name, _ in args:
+            total_counts[raw_param_name] = total_counts.get(raw_param_name, 0) + 1
+        # Track current occurrence index for each parameter name
+        current_counts = {}
+        for idx, (raw_param_name, param_type) in enumerate(args):
             param_name = raw_param_name
+            # Track current occurrence (1-based)
+            current_counts[raw_param_name] = current_counts.get(raw_param_name, 0) + 1
             done = False
             if ("(s)" in param_name):
                 param_name = param_name.replace("(s)", "s")
@@ -94,6 +115,9 @@ class ProcessCalcuator:
             name = param_name.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace(".", "").replace("+", "_").replace("[", "").replace("]", "")
             if str(name[0]).isdigit():
                 name = "choose_" + name
+            # Append suffix for duplicate parameter names (only if there are multiple)
+            if total_counts[raw_param_name] > 1:
+                name = f"{name}_{current_counts[raw_param_name]}"
             doc_name = name
             if len(_type) == 1:
                 last = ""
@@ -165,20 +189,31 @@ class ProcessCalcuator:
                     self._processed = self._processed[:index] + "Optional[" + self._processed[index:]
                 done = True
             self._docstring += f"{3*INDENT}{doc_name}:\n"
-            self._docstring += f"{4*INDENT}{self._prompt_text(prompts[raw_param_name])}\n"
+            self._docstring += f"{4*INDENT}{self._prompt_text(prompts_dict.get(raw_param_name, ''))}\n"
         self._processed += "output_varname: Optional[str] = None)"
         self._docstring += f"{3*INDENT}output_varname:\n"
         self._docstring += f"{4*INDENT}The name of the newly created variable\n"
 
     def _find_var_args(self, args):
         var_args = []
-        for param_name, param_type in args.items():
+        # Pre-count total occurrences of each parameter name
+        total_counts = {}
+        for param_name, _ in args:
+            total_counts[param_name] = total_counts.get(param_name, 0) + 1
+        # Track current occurrence index for each parameter name
+        current_counts = {}
+        for param_name, param_type in args:
             _type = self._arg_types.get(param_type)
             if not _type:
                 continue
+            # Track current occurrence (1-based)
+            current_counts[param_name] = current_counts.get(param_name, 0) + 1
             name = param_name.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace(".", "").replace("+", "_").replace("[", "").replace("]", "")
             if str(name[0]).isdigit():
                 name = "choose_" + name
+            # Append suffix for duplicate parameter names (only if there are multiple)
+            if total_counts[param_name] > 1:
+                name = f"{name}_{current_counts[param_name]}"
             if len(_type) == 1:
                 if list(_type)[0] == "ENS_VAR":
                     var_args.append(name)
@@ -198,18 +233,35 @@ class ProcessCalcuator:
             visible = [x for x in func if x.tag == "visible"][0]
             if visible.text:
                 continue
-            args = {}
-            prompts = {}
+            args = []
+            prompts = []
             result_type = None
             desc = None
+            metadata  = {"class": [], "vartype": [], "name": func.get("name"), "dimensions": None}
             for attr in func:
                 if attr.tag == "description":
                     desc = attr.text
                 if attr.tag == "param":
-                    args[attr.get("name")] = [x.get("name") for x in attr if x.tag == "type"][0]
-                    prompts[attr.get("name")] = [x.get("name") for x in attr if x.tag == "prompt"][0]
+                    args.append((attr.get("name"), [x.get("name") for x in attr if x.tag == "type"][0]))
+                    if name == "IF_LT":
+                        prompt = "MATH_VARFLT"
+                    else:
+                        prompt = [x.get("name") for x in attr if x.tag == "prompt"][0]
+                    prompts.append((attr.get("name"), prompt))
                 if attr.tag == "result":
                     result_type = [x.get("name") for x in attr if x.tag == "type"][0]
+                    dimensions = [x.text for x in attr if x.tag == "dimensions"][0]
+                    metadata["dimensions"] = dimensions
+                if attr.tag == "vartype":
+                    for vart in attr:
+                        if vart.tag != "arg":
+                            metadata["vartype"].append(vart.tag)
+                if attr.tag == "class":
+                    metadata["class"].append(attr.text)
+            class_name = "ens_calculator"
+            if self._math:
+                class_name = "ens_math"
+            self._end_lines.append(f"{class_name}.{name.lower()}.meta = {metadata}")
             self._processed += f"{INDENT}def {name.lower()}(self, "
             self._docstring = f'\n{2*INDENT}"""'
             if desc:
@@ -257,7 +309,7 @@ class ProcessCalcuator:
                 self._register_prompts(node)
             if node.tag == "types":
                 self._register_types(node)
-            if node.tag == "server":
+            if node.tag == "server" or node.tag == "math":
                 self._register_functions(node)
         
         
