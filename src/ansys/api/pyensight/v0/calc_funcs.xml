@@ -71,23 +71,25 @@ Basic schema:
       <visible/>  <- specify when this function should be visible.  For example: <visible>alpha</visible> is only user visible
                      if the Ansys alpha flag is set.
                      
+      <parent_check>none</parent_check>   <- If "none", this function will bypass the check to see if a part and its parent are both in the plist
+                                             if not specified, we disallow parts and parents in the same plist.
+                     
       *<vartype>  <- the vartype element is optional.  If present, it describes the conditions under which the function
-	                 result type may change. These are used by the EnSight calculator engine to decide if a variable must
-					 be recreated or if can just be re-evaluated.
+	                   result type may change. These are used by the EnSight calculator engine to decide if a variable must
+					           be recreated or if can just be re-evaluated.
 					 
 	    <scalar/> <vector/> <tensor/>
-        <const/> <const_per_part/>  <- these elements specify what the potential result types might be.  For example, if
-		                               a function could return a vector or scalar, then the first two elements will be
-									   present.
+      <const/> <const_per_part/>  <- these elements specify what the potential result types might be.  For example, if
+		                                 a function could return a vector or scalar, then the first two elements will be present.
 		
 		<nodal/> <element/>  <- these elements specify the potential result locations might be (for the non-constant types).
 		                        For example, if a function might return either a nodal or elemental variable, then both
-								of these elements will be present.
+								            of these elements will be present.
 		
-        <arg>ARGNUM</arg>  <- if arg element(s) are present, the ARGNUM values specify a list of parameter indices
+    <arg>ARGNUM</arg>  <- if arg element(s) are present, the ARGNUM values specify a list of parameter indices
 		                      (an ARGNUM of -1 is a shortcut for all parameters).  If the type of any of the parameters
-							  in this list change, then it is possible that the output of the function may change its
-							  type or location and thus the variable would need to be recreated.
+							            in this list change, then it is possible that the output of the function may change its
+							            type or location and thus the variable would need to be recreated.
 		...
       </vartype>
       
@@ -166,7 +168,10 @@ Basic schema:
      <prompt name="NVC_ENDTIMEPROMPT">Enter an ending time step.</prompt>
      <prompt name="NVC_VALVARPROMPT">Enter a variable name or a value.</prompt>
      <prompt name="NVC_VCTCOMPNTPROMPT">Enter a vector component [X], [Y], [Z] or [] for magnitude.</prompt>
-     <prompt name="NVC_MOMNVARPROMPT">Select a momentum variable.</prompt>
+     <prompt name="NVC_CUSTOM_VECTOR_PROMPT_X">Custom Vector - X Component.</prompt>
+	 <prompt name="NVC_CUSTOM_VECTOR_PROMPT_Y">Custom Vector - Y Component.</prompt>
+	 <prompt name="NVC_CUSTOM_VECTOR_PROMPT_Z">Custom Vector - Z Component.</prompt>
+	 <prompt name="NVC_MOMNVARPROMPT">Select a momentum variable.</prompt>
      <prompt name="NVC_SCLVARZEROPROMPT">Select a scalar variable or enter a 0 to indicate a 2D case.</prompt>
      <prompt name="NVC_STAGVARPROMPT">Select a stagnation energy variable.</prompt>
      <prompt name="NVC_RATIOSPECVALPROMPT">Enter a &apos;ratio of specific heats&apos;(value&gt;=1.0).</prompt>
@@ -319,7 +324,10 @@ Basic schema:
      <prompt name="NVC_AXISYMMETRIC_THETA">Axisymmetric angle.</prompt>
      <prompt name="NVC_VECDISP_OPTIONS">Normal handling options.</prompt>
      <prompt name="NVC_STAGEPROMPT">Stage number used in RZ recomputation.</prompt>
-     <!-- Commented out next line -->
+	 <prompt name="NVC_VOLUME_QUANTITY_TYPE">Type of integral quantity to be computed</prompt>
+     <prompt name="NVC_SURFACE_QUANTITY_TYPE">Type of surface integral quantity to be computed</prompt>
+  
+	  <!-- Commented out next line -->
      <!-- prompt name="NVC_CONSTANT_PER_PART_VARPROMPT">Select a Constant Per Part variable</prompt> -->
   </prompts>
   <types>
@@ -690,8 +698,48 @@ Basic schema:
         <enum name="Volumes">0</enum>
         <enum name="Normals">1</enum>
       </val_enum>
-    </type> 
-    <type name="NVCP_TIMESTEP">
+    </type>
+	<type name="NVCP_ENUM_VOLUMEQUANTITYTYPE">
+		<val_enum>
+			<enum name="Mass-Average">0</enum>
+			<enum name="Mass Integral">1</enum>
+			<enum name="Mass">2</enum>
+			<enum name="Sum">3</enum>
+			<enum name="Minimum">4</enum>
+			<enum name="Maximum">5</enum>
+			<enum name="Volume">6</enum>
+			<enum name="Volume-Average">7</enum>
+			<enum name="Volume Integral">8</enum>
+		</val_enum>
+	</type>
+	<type name="NVCP_ENUM_SURFACEQUANTITYTYPE">
+        <val_enum>
+            <enum name="Area">0</enum>
+            <enum name="Area Weighted Average">1</enum>
+			<enum name="Custom Vector Based Flux">2</enum>
+			<enum name="Custom Vector Flux">3</enum>
+			<enum name="Custom Vector Weighted Average">4</enum>
+			<enum name="Facet-Average">5</enum>
+			<enum name="Facet-Minimum">6</enum>
+			<enum name="Facet-Maximum">7</enum>
+            <enum name="Flow Rate">8</enum>
+            <enum name="Integral">9</enum>
+            <enum name="Mass Flow Rate">10</enum>
+			<enum name="Mass Weighted Average">11</enum>
+            <enum name="Standard Deviation">12</enum>
+			<enum name="Sum">13</enum>
+			<enum name="Uniformity Index – Area Weighted">14</enum>
+            <enum name="Uniformity Index – Mass Weighted">15</enum>
+            <enum name="Vertex Average">16</enum>
+			<enum name="Vertex Minimum">17</enum>
+			<enum name="Vertex Maximum">18</enum>
+			<enum name="Volume Flow Rate">19</enum>
+        </val_enum>
+    </type>
+
+
+	  
+	  <type name="NVCP_TIMESTEP">
       <builtin/>
       <val_int/>
       <timestep/>
@@ -744,6 +792,11 @@ Basic schema:
       <nodal/>
       <noneok/>
     </type>
+	<type name="NVCP_ELMSCLVAR_NONE">
+	  <var_scalar/>
+	  <element/>
+	  <noneok/>
+	</type>
     <type name="NVCP_SCLVAR_INTVAL">
       <var_scalar/>
       <element/>
@@ -872,6 +925,7 @@ Basic schema:
     <function name="Area">
       <description>Computes a constant variable defined as the sum of the area of the specified parts plus the surface area if any 3D elements exist.</description>
       <visible/>
+      <parent_check>none</parent_check>
       <vartype>
         <const/>
         <const_per_part/>
@@ -1718,6 +1772,7 @@ Basic schema:
       <class>CaseMap</class>
       <description>Computes a field variable (scalar, vector, or tensor) on the selected parts by searching for the node/element location in the case specified.</description>
       <visible/>
+      <parent_check>none</parent_check>
       <vartype>
         <scalar/>
         <vector/>
@@ -1769,6 +1824,7 @@ Basic schema:
       <class>CaseMap</class>
       <description>Computes a field variable (scalar, vector, or tensor) on the selected parts by searching for the node/element location in the case specified.  Results is the field variable minus the case map. </description>
       <visible/>
+      <parent_check>none</parent_check>
       <vartype>
         <scalar/>
         <vector/>
@@ -1820,6 +1876,7 @@ Basic schema:
       <class>Variable Manipulation</class>
       <class>CaseMap</class>
       <visible/>
+      <parent_check>none</parent_check>
       <vartype>
         <scalar/>
         <nodal/>
@@ -2695,6 +2752,7 @@ Basic schema:
     <function name="Dist2Part">
       <description>Computes a nodal scalar variable defined as the smallest Euclidean distance from the nodes of the origin part to the nodes of the parts specified.  If a vector is given the result will be signed.  </description>
       <visible/>
+      <parent_check>none</parent_check>
       <vartype>
         <scalar/>
         <nodal/>
@@ -2729,6 +2787,7 @@ Basic schema:
     <function name="Dist2PartElem">
       <description>Computes a nodal scalar variable defined as the smallest Euclidean distance from the elements of the origin part to the nodes of the parts specified.  If a vector is given the result will be signed.</description>
       <visible/>
+      <parent_check>none</parent_check>
       <vartype>
         <scalar/>
         <nodal/>
@@ -2888,27 +2947,166 @@ Basic schema:
         <type name="NVCP_ELMSCLVAR"/>
       </param>
     </function>
-    <function name="EleSize">
-      <description>Compute an element based scalar variable defined as the length/Area/Volume of 1d/2d/3d elements in the parts specified.</description>
-      <visible/>
-      <vartype>
-        <scalar/>
-        <element/>
-      </vartype>
-      <class>Function</class>
-      <class>Geometry</class>
-      <functionid name="NVC_ELEMENT_SIZE">117</functionid>
-      <result>
-        <description></description>
-        <dimensions>a</dimensions>
-        <type name="NVCP_SCLVAR"/>
-      </result>
-      <param name="part(s)">
-        <description></description>
-        <dimensions>P</dimensions>
-        <prompt name="NVC_ANYPROMPT"/>
-        <type name="NVCP_ANYPART"/>
+    <function name="ElemToNodeLaplacian">
+	    <description>Compute a node based variable from a element based scalar or vector using pseudo-laplacian weighting (or Frink's algorithm).</description>
+	    <visible>0</visible>
+	    <vartype>
+		    <scalar/>
+		    <vector/>
+		    <nodal/>
+		    <arg>1</arg>
+	    </vartype>
+	    <class>Function</class>
+	    <class>Variable Manipulation</class>
+	    <class>Geometry</class>
+	    <functionid name="NVC_ELEM_TO_NODE_LAPLACIAN">162</functionid>
+	    <result>
+		    <description></description>
+		    <dimensions>b</dimensions>
+		    <type name="NVCP_SCLVCTVAR"/>
+	    </result>
+	    <param name="part">
+		    <description></description>
+		    <dimensions>P</dimensions>
+		    <prompt name="NVC_ANYPROMPT"/>
+		    <type name="NVCP_ANYPART"/>
+	    </param>
+	    <param name="elemental scalar or vector">
+		    <description></description>
+		    <dimensions>*</dimensions>
+		    <prompt name="NVC_ELMSCLVCTVARPROMPT"/>
+		    <type name="NVCP_ELMSCLVCTVAR"/>
+	    </param>
+    </function>
+	<function name="IntegralVolumeEx">
+		<description>Compute volume integrals for a selected quantity type.</description>
+		<visible>beta</visible>
+		<vartype>
+			<scalar/>
+			<vector/>
+			<element/>
+			<arg>4</arg>
+		</vartype>
+		<class>Function</class>
+		<class>Integrals and Sums</class>
+		<class>Geometry</class>
+        <class>Calculus</class>
+		<functionid name="NVC_INTEGRAL_VOLUME_EX">163</functionid>
+		<result>
+            <description></description>
+            <dimensions>[c,cM,M,c,c,c,LLL,c,cLLL]@b</dimensions>
+            <type name="NVCP_CONSTVAR"/>
+        </result>
+		<param name="part(s)">
+            <description></description>
+            <dimensions>P</dimensions>
+            <prompt name="NVC_3DPROMPT"/>
+            <type name="NVCP_3DPART"/>
+        </param>
+		<param name="qtytype">
+			<description></description>
+			<dimensions>*</dimensions>
+			<prompt name="NVC_VOLUME_QUANTITY_TYPE"/>
+			<type name="NVCP_ENUM_VOLUMEQUANTITYTYPE"/>
+		</param>
+		<param name="variable">
+            <description></description>
+            <dimensions>*</dimensions>
+			<prompt name="NVC_ELMSCLVCTVARPROMPT"/>
+			<type name="NVCP_ELMSCLVCTVAR"/>      
       </param>
+	  <param name="component">
+        <description></description>
+        <dimensions>*</dimensions>
+        <prompt name="NVC_VCTCOMPNTPROMPT"/>
+        <type name="NVCP_COMPSTR"/>
+      </param>
+	</function>
+	  
+	<function name="IntegralSurfaceEx">
+        <description>Compute surface integrals for a selected quantity type.</description>
+        <visible>beta</visible>
+        <vartype>
+            <scalar/>
+            <vector/>
+            <element/>
+            <arg>4</arg>
+        </vartype>
+        <class>Function</class>
+        <class>Integrals and Sums</class>
+        <class>Geometry</class>
+        <class>Calculus</class>
+        <functionid name="NVC_INTEGRAL_SURFACE_EX">164</functionid>
+        <result>
+            <description></description>
+			<dimensions>[LL, c,*,*,c,c,c,c,cM/T,cLL,M/T,c,c,c,*,*,c,c,c, LLL/T]@b</dimensions>
+            <type name="NVCP_CONSTVAR"/>
+        </result>
+        <param name="part(s)">
+            <description></description>
+            <dimensions>P</dimensions>
+			<prompt name="NVC_2DPROMPT"/>
+			<type name="NVCP_2DPART"/>
+        </param>
+        <param name="qtytype">
+            <description>Select the surface integral type</description>
+            <dimensions>*</dimensions>
+            <prompt name="NVC_SURFACE_QUANTITY_TYPE"/>
+            <type name="NVCP_ENUM_SURFACEQUANTITYTYPE"/>
+        </param>
+        <param name="variable">
+            <description>Select the elemental variable for integration</description>
+            <dimensions>*</dimensions>
+			<prompt name="NVC_ELMSCLVCTVARPROMPT"/>
+			<type name="NVCP_ELMSCLVCTVAR"/>      
+        </param>
+        <param name="component">
+            <description></description>
+            <dimensions>*</dimensions>
+            <prompt name="NVC_VCTCOMPNTPROMPT"/>
+            <type name="NVCP_COMPSTR"/>
+        </param>
+		<param name="Custom Vector - X Component">
+			<description>Custom Vector - X Component</description>
+			<dimensions>*</dimensions>
+			<prompt name="NVC_CUSTOM_VECTOR_PROMPT_X"/>
+			<type name="NVCP_ELMSCLVAR"/>
+		</param>
+		<param name="Custom Vector - Y Component">
+			<description>Custom Vector - Y</description>
+			<dimensions>*</dimensions>
+			<prompt name="NVC_CUSTOM_VECTOR_PROMPT_Y"/>
+			<type name="NVCP_ELMSCLVAR"/>
+		</param>
+		<param name="Custom Vector - Z Component">
+			<description>Custom Vector - Z</description>
+			<dimensions>*</dimensions>
+			<prompt name="NVC_CUSTOM_VECTOR_PROMPT_Z"/>
+			<type name="NVCP_ELMSCLVAR"/>
+		</param>
+    </function>
+
+	  <function name="EleSize">
+        <description>Compute an element based scalar variable defined as the length/Area/Volume of 1d/2d/3d elements in the parts specified.</description>
+        <visible/>
+        <vartype>
+          <scalar/>
+          <element/>
+        </vartype>
+        <class>Function</class>
+        <class>Geometry</class>
+        <functionid name="NVC_ELEMENT_SIZE">117</functionid>
+        <result>
+          <description></description>
+          <dimensions>a</dimensions>
+          <type name="NVCP_SCLVAR"/>
+        </result>
+        <param name="part(s)">
+          <description></description>
+          <dimensions>P</dimensions>
+          <prompt name="NVC_ANYPROMPT"/>
+          <type name="NVCP_ANYPART"/>
+        </param>
     </function>
     <function name="EnergyT">
       <description>Compute a scalar variable defined as the total energy per unit volume given density, pressure, velocity, and ratio of specific heats.</description>
@@ -3904,6 +4102,7 @@ Basic schema:
     <function name="Length">
       <description>Computes a constant variable defined as the sum of the length of all 1D elements. Parts composed of 2D or 3D elements need to be in Feature rep to obtain a value</description>
       <visible/>
+      <parent_check>none</parent_check>
       <vartype>
         <const/>
         <const_per_part/>
@@ -4551,6 +4750,7 @@ Basic schema:
     <function name="NodeCount">
       <description>Computes a constant variable defined as the number of nodes in the part(s) selected</description>
       <visible/>
+      <parent_check>none</parent_check>
       <vartype>
         <const/>
         <const_per_part/>
@@ -4774,6 +4974,7 @@ Basic schema:
       <class>Geometry</class>
       <class>Variable Manipulation</class>
       <visible/>
+      <parent_check>none</parent_check>
       <vartype>
         <const/>
         <const_per_part/>
@@ -5570,6 +5771,7 @@ Basic schema:
     <function name="ServerNumber">
       <description>Computes a per element scalar defined as the server number that contains the element.  Useful for decomposed data debugging</description>
       <visible/>
+      <parent_check>none</parent_check>
       <vartype>
         <scalar/>
         <element/>
@@ -7066,6 +7268,7 @@ Basic schema:
     <function name="AxisymmetricParams">
       <description>Compute axissymmetric volume weights and element normals.</description>
       <visible>alpha</visible>
+      <parent_check>none</parent_check>
       <vartype>
         <scalar/>
         <vector/>
@@ -7139,6 +7342,7 @@ Basic schema:
     <function name="TurboSurfaceIntegral">
       <description>Compute a circumferential integral following turbo machinery conventions.</description>
       <visible>alpha</visible>
+      <parent_check>none</parent_check>
       <vartype>
         <scalar/>
         <vector/>
@@ -7200,6 +7404,7 @@ Basic schema:
     <function name="TurboSurfaceProjection">
       <description>Compute the projection of coordinates into normalized turbo machinery conventions.</description>
       <visible>alpha</visible>
+      <parent_check>none</parent_check>
       <vartype>
         <vector/>
         <nodal/>
@@ -7379,6 +7584,7 @@ Basic schema:
     <function name="VectorDispProjection">
       <description>Computes a vector variable defined by projecting a vector variable through a displacement field</description>
       <visible>alpha</visible>
+      <parent_check>none</parent_check>
       <vartype>
         <vector/>
         <nodal/>
@@ -7505,6 +7711,7 @@ Basic schema:
     <function name="Vol">
       <description>Computes the volume of the parts specified</description>
       <visible/>
+      <parent_check>none</parent_check>
       <vartype>
         <const/>
         <const_per_part/>
