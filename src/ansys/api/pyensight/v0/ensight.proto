@@ -14,6 +14,8 @@
 
 syntax = "proto3";
 
+import "google/protobuf/empty.proto";
+
 //@ingroup grpc
 // gRPC service definition for the EnSight Application
 
@@ -47,9 +49,13 @@ service EnSightService {
    // @return GeometryReply the current scene geometry in glTF format
    rpc GetGeometry (GeometryRequest) returns (GeometryReply) {}
 
-   // Shutdown EnSight session
+   // Shutdown EnSight session - possibly deprecated
    // @return ExitReply an acknowledgment from the EnSight server
    rpc Exit (ExitRequest) returns (ExitReply) {}
+
+   // Shutdown EnSight session
+   // @return no return value
+   rpc ExitCleanly (google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
    // Enable a filtered stream of callback events from the EnSight session (non-blocking)
    //

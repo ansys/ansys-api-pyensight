@@ -1,5 +1,5 @@
 // *****************************************
-// Copyright 2022 ANSYS, Inc.
+// Copyright 2022-2024 ANSYS, Inc.
 // All Rights Reserved.
 //
 //        Restricted Rights Legend
@@ -252,6 +252,9 @@ message UpdateView {
     repeated float nearfar = 9;   // The distance from the lookfrom point to the near and far clipping planes.
 
     string hash = 10;             // hash for this message payload
+
+    uint64 timestep = 11;          // index of current timestep/flipbook page
+    uint64 num_timesteps = 12;     // total number of timesteps/flipbook pages to export
 } 
 
 
@@ -314,7 +317,7 @@ message UpdatePart {
     float node_size_default = 14;     // If node rendering is specified, the base size of each node
     uint64 color_variableid = 15;     // per-node or per-element coloring specification
     uint64 alpha_variableid = 16;     // If this is set, transparency varies over the part, and comes from the alpha channel for alpha_variableid.  It supercedes the alpha value in fill_color.
-    uint64 node_size_variableid = 17; // If the 'render' variable has 'NODES' set, the size of rendered points can vary by the value of a variable instead of the node_size_default.
+    uint64 node_size_variableid = 17; // If the 'render' variable has 'NODES' set, the size of rendered points can vary by the value of a variable, multiplied by the node_size_default.
     uint64 displacement_variableid = 18;  // if this is set, the vector variable should be added to the coordinate variable to generate the final coordinate.
 
     uint64 texture_id = 19;                     // 2D texture to apply.
