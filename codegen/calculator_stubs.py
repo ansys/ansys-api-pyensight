@@ -306,7 +306,7 @@ class ProcessCalcuator:
             self._processed += f"""\n{3*INDENT}val = repr(list(params_dict.values()))[1:-1].replace("'", "")"""
             self._processed += f"\n{3*INDENT}if sources:"
             self._processed += f"\n{4*INDENT}return self._ensight.objs.core.create_variable(f'{{output_varname}}', f'{name}({{val}})', sources=sources)"
-            self._processed += f"\n{3*INDENT}return self._ensight.objs.core.create_variable(f'{{output_varname}}', f'{name}({{val}})')"
+            self._processed += f"\n{3*INDENT}return self._ensight.objs.core.create_variable(f'{{output_varname}}', f'{name}({{val}})', sources=self._ensight.objs.core.PARTS)"
             self._processed += f"\n{2*INDENT}return self._ensight.variables.evaluate(f'{{output_varname}}={name}()')\n\n"
 
     def _process_xml(self):
