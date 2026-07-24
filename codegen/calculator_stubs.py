@@ -4,6 +4,10 @@ from xml.etree import ElementTree
 
 INDENT = "    "
 
+CALC_FANCY_NAMES: {
+    
+}
+
 
 class ProcessCalcuator:
     def __init__(self, data: str, math=False):
@@ -300,7 +304,9 @@ class ProcessCalcuator:
             self._processed += f'\n{3*INDENT}output_varname = f"{name}_{{counter}}"'
             self._processed += f'\n{2*INDENT}if len(params_dict.values()) > 0:'
             self._processed += f"""\n{3*INDENT}val = repr(list(params_dict.values()))[1:-1].replace("'", "")"""
-            self._processed += f"\n{3*INDENT}return self._ensight.objs.core.create_variable(f'{{output_varname}}', f'{name}({{val}})', sources=sources)"
+            self._processed += f"\n{3*INDENT}if sources:"
+            self._processed += f"\n{4*INDENT}return self._ensight.objs.core.create_variable(f'{{output_varname}}', f'{name}({{val}})', sources=sources)"
+            self._processed += f"\n{3*INDENT}return self._ensight.objs.core.create_variable(f'{{output_varname}}', f'{name}({{val}})')"
             self._processed += f"\n{2*INDENT}return self._ensight.variables.evaluate(f'{{output_varname}}={name}()')\n\n"
 
     def _process_xml(self):
