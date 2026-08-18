@@ -38,14 +38,14 @@ package ensightservice;
 // as this .proto file and is named dynamic_scene_graph_example_client.py.  To
 // run the example client (Windows example, ANSYS 2021 R1 distribution), first start 
 // EnSight with the following command line:
-// \code{.unparsed}
+// @code{.unparsed}
 // ensight.bat -grpc_server 12345
-// \endcode
+// @endcode
 // Then in another shell window run the Python script using the EnSight Python
 // interpreter:
-// \code{.unparsed}
+// @code{.unparsed}
 // cpython.bat dynamic_scene_graph_example_client.py
-// \endcode
+// @endcode
 // Load some data into the EnSight session and then select "Update" from the
 // example client GUI menus to initiate a scene refresh.  By default, the example
 // client will send a SceneClientCommand (SceneClientCommand::ClientCommandType::INIT)
@@ -53,10 +53,10 @@ package ensightservice;
 // option is enabled in the sample client, it will allow EnSight to push scene graph updates
 // in asynchronous fashion.  An EnSight initiated scene update can be started from the Python 
 // interpreter in the EnSight client using this code fragment:
-// \code{.python}
+// @code{.python}
 // import enspyqtgui_int
 // enspyqtgui_int.dynamic_scene_graph_command("dynamicscenegraph://localhost/client/update")
-// \endcode
+// @endcode
 // This update will be seen by all current dynamic scene graph sessions that have the 
 // allow_spontaneous flag set in their SceneClientCommand INIT messages.
 //
