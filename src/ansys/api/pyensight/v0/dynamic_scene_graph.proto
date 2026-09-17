@@ -117,7 +117,7 @@ package ensightservice;
 // @subsection entitydiagram Entity relationship diagram
 // <hr>
 //
-// \image html ./dynamic_scene_graph_service_entities.svg
+// @image html ./dynamic_scene_graph_service_entities.svg
 //
 //@{
 service DynamicSceneGraphService {
